@@ -51,7 +51,7 @@ def run_task1():
     print("\n" + "-"*100 + "\n")
     
     try:
-        from Newton_Raphson_Enhanced import (
+        from methods.newton_raphson import (
             get_ieee_9_bus_data, build_y_bus, newton_raphson,
             calculate_line_flows, print_results
         )
@@ -104,12 +104,12 @@ def run_task2():
     print("  - Comparison tables (voltages, angles, losses)")
     print("  - Convergence characteristics")
     print("  - Voltage difference analysis")
-    print("  - CSV files in comparison_results/")
+    print("  - CSV files in outputs/tables/comparison_results/")
     print("  - Discussion points")
     print("\n" + "-"*100 + "\n")
     
     try:
-        from Task2_Comparison_Framework import (
+        from tasks.task2_comparison import (
             run_all_methods, generate_comparison_tables,
             save_results_to_csv, print_discussion_points
         )
@@ -159,7 +159,7 @@ def run_task3():
     print("\n" + "-"*100 + "\n")
     
     try:
-        from Task3_Sensitivity_Analysis import (
+        from tasks.task3_sensitivity import (
             perform_sensitivity_analysis, generate_sensitivity_tables,
             generate_voltage_profile_table, save_sensitivity_results,
             print_discussion_guidelines
@@ -213,7 +213,7 @@ def generate_plots():
     print("\n" + "-"*100 + "\n")
     
     try:
-        from Visualization_Tools import create_all_plots_for_report
+        from visualization import create_all_plots_for_report
         
         create_all_plots_for_report()
         
@@ -256,7 +256,7 @@ def print_summary(results):
     if all(results):
         
         print("\nGenerated outputs:")
-        print("  📁 comparison_results/ - Task 2 CSV files")
+        print("  📁 outputs/tables/comparison_results/ - Task 2 CSV files")
         print("  📁 sensitivity_results/ - Task 3 CSV files")
         print("  📊 Multiple PNG plot files")
         print("  📄 Flowchart_Reference.md - For flowchart creation")

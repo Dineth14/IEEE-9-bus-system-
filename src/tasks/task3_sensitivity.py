@@ -17,7 +17,7 @@ Date: January 2026
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
-from Newton_Raphson_Enhanced import (
+from methods.newton_raphson import (
     get_ieee_9_bus_data, build_y_bus, newton_raphson
 )
 
@@ -369,8 +369,8 @@ def save_sensitivity_results(results):
     """
     import os
     
-    if not os.path.exists('sensitivity_results'):
-        os.makedirs('sensitivity_results')
+    if not os.path.exists('../outputs/tables/sensitivity_results'):
+        os.makedirs('../outputs/tables/sensitivity_results')
     
     num_buses = results['num_buses']
     load_buses = results['load_buses']
@@ -387,7 +387,7 @@ def save_sensitivity_results(results):
         variance_data.append(row)
     
     df_variance = pd.DataFrame(variance_data)
-    df_variance.to_csv('sensitivity_results/voltage_variance.csv', index=False)
+    df_variance.to_csv('../outputs/tables/sensitivity_results/voltage_variance.csv', index=False)
     
     # Save detailed results for each load bus
     for load_bus in load_buses:
@@ -405,7 +405,7 @@ def save_sensitivity_results(results):
             detailed_data.append(row)
         
         df_detailed = pd.DataFrame(detailed_data)
-        df_detailed.to_csv(f'sensitivity_results/load_bus_{load_bus}_detailed.csv', index=False)
+        df_detailed.to_csv(f'../outputs/tables/sensitivity_results/load_bus_{load_bus}_detailed.csv', index=False)
     
     # Save ranking
     ranking_data = []
@@ -421,10 +421,10 @@ def save_sensitivity_results(results):
     
     df_ranking = pd.DataFrame(ranking_data)
     df_ranking = df_ranking.sort_values('Avg_Variance', ascending=False)
-    df_ranking.to_csv('sensitivity_results/sensitivity_ranking.csv', index=False)
+    df_ranking.to_csv('../outputs/tables/sensitivity_results/sensitivity_ranking.csv', index=False)
     
     print("\n" + "="*100)
-    print("Sensitivity results saved to CSV files in 'sensitivity_results/' directory:")
+    print("Sensitivity results saved to CSV files in 'outputs/tables/sensitivity_results/' directory:")
     print("  - voltage_variance.csv")
     print("  - sensitivity_ranking.csv")
     for load_bus in load_buses:

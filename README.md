@@ -22,20 +22,47 @@ This project implements a comprehensive load flow analysis on the IEEE 9-Bus tes
 ```
 IEEE-9-bus-system/
 │
-├── Newton_Raphson_Enhanced.py          # Task 1: Full NR implementation (MAIN)
-├── Gauss_Seidel_Load_Flow.py           # GS method implementation
-├── Fast_Decoupled_Load_Flow.py         # FD method implementation
+├── src/                                # Source code
+│   ├── methods/                        # Load flow implementations
+│   │   ├── newton_raphson.py           # Task 1: Full NR (MAIN)
+│   │   └── __init__.py
+│   ├── tasks/                          # Assignment tasks
+│   │   ├── task2_comparison.py         # Task 2: Method comparison
+│   │   ├── task3_sensitivity.py        # Task 3: Voltage sensitivity
+│   │   └── __init__.py
+│   ├── visualization.py                # Plotting functions
+│   ├── run_all.py                      # Master execution script
+│   └── __init__.py
 │
-├── Task2_Comparison_Framework.py       # Task 2: Method comparison
-├── Task3_Sensitivity_Analysis.py       # Task 3: Voltage sensitivity
-├── Visualization_Tools.py              # Plotting functions
+├── docs/                               # Documentation
+│   ├── ASSIGNMENT_GUIDE.md             # Step-by-step guide
+│   ├── Flowchart_Reference.md          # Flowchart with line numbers
+│   ├── PSSE_Validation.md              # PSSE comparison analysis
+│   ├── PSSE_Report_Tables.md           # Report-ready tables
+│   └── QUICK_REFERENCE.md              # Quick reference guide
 │
-├── Flowchart_Reference.md              # Flowchart with line numbers
+├── data/                               # Input data
+│   └── Ieee_9_bus.raw                  # System data file
+│
+├── outputs/                            # Generated outputs
+│   ├── figures/                        # Report-quality plots
+│   │   ├── report_voltage_comparison.png
+│   │   ├── report_convergence_comparison.png
+│   │   ├── report_voltage_difference_heatmap.png
+│   │   ├── report_power_loss_comparison.png
+│   │   └── report_sensitivity_comprehensive.png
+│   └── tables/                         # CSV results
+│       ├── comparison_results/         # Task 2 outputs
+│       └── sensitivity_results/        # Task 3 outputs
+│
+├── legacy/                             # Original implementations
+│   ├── Newton_raphson_method.py
+│   ├── Gauss_Seidel_Load_Flow.py
+│   └── Fast_Decoupled_Load_Flow.py
+│
+├── main.py                             # Main entry point
 ├── README.md                           # This file
-│
-├── comparison_results/                 # CSV outputs from Task 2
-├── sensitivity_results/                # CSV outputs from Task 3
-└── *.png                              # Generated plots
+└── .gitignore                          # Git ignore rules
 ```
 
 ---
@@ -50,9 +77,20 @@ pip install numpy pandas matplotlib seaborn
 
 ### Running the Analysis
 
-#### Task 1: Newton-Raphson Load Flow
+#### Option 1: Run Everything (Recommended)
 ```bash
-python Newton_Raphson_Enhanced.py
+python main.py --all
+```
+or
+```bash
+python src/run_all.py
+```
+
+#### Option 2: Run Individual Tasks
+
+**Task 1: Newton-Raphson Load Flow**
+```bash
+python src/methods/newton_raphson.py
 ```
 **Outputs:**
 - Bus voltages and angles
@@ -60,33 +98,33 @@ python Newton_Raphson_Enhanced.py
 - **2nd iteration details** (required for Task 1)
 - Convergence statistics
 
-#### Task 2: Comparison of All Methods
+**Task 2: Comparison of All Methods**
 ```bash
-python Task2_Comparison_Framework.py
+python src/tasks/task2_comparison.py
 ```
 **Outputs:**
 - Comparative tables (voltage, angles, losses)
 - Convergence characteristics
-- CSV files in `comparison_results/`
+- CSV files in `outputs/tables/comparison_results/`
 - Discussion points for report
 
-#### Task 3: Voltage Sensitivity Analysis
+**Task 3: Voltage Sensitivity Analysis**
 ```bash
-python Task3_Sensitivity_Analysis.py
+python src/tasks/task3_sensitivity.py
 ```
 **Outputs:**
 - Voltage variance and standard deviation
 - Sensitivity ranking of load buses
 - Detailed voltage profiles
-- CSV files in `sensitivity_results/`
+- CSV files in `outputs/tables/sensitivity_results/`
 - Plots for report
 
-#### Generate All Plots
+**Generate All Plots**
 ```bash
-python Visualization_Tools.py
+python src/visualization.py
 ```
 **Outputs:**
-- High-quality plots for report
+- High-quality plots for report (saved in `outputs/figures/`)
 - Voltage comparison plots
 - Convergence comparison
 - Sensitivity analysis visualizations

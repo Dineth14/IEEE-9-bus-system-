@@ -329,34 +329,34 @@ def create_all_plots_for_report():
     print("="*100)
     
     # Import necessary modules
-    from Task2_Comparison_Framework import run_all_methods
-    from Task3_Sensitivity_Analysis import perform_sensitivity_analysis
+    from tasks.task2_comparison import run_all_methods
+    from tasks.task3_sensitivity import perform_sensitivity_analysis
     
     try:
         # Generate Task 2 plots
         print("\n--- Generating Task 2 Comparison Plots ---")
         task2_results = run_all_methods()
         
-        plot_voltage_comparison(task2_results['methods'], 'report_voltage_comparison.png')
-        plot_convergence_comparison(task2_results['methods'], 'report_convergence_comparison.png')
+        plot_voltage_comparison(task2_results['methods'], '../outputs/figures/report_voltage_comparison.png')
+        plot_convergence_comparison(task2_results['methods'], '../outputs/figures/report_convergence_comparison.png')
         plot_voltage_difference_heatmap(task2_results['methods'], 'Newton-Raphson', 
-                                       'report_voltage_difference_heatmap.png')
-        plot_power_loss_comparison(task2_results['methods'], 'report_power_loss_comparison.png')
+                                       '../outputs/figures/report_voltage_difference_heatmap.png')
+        plot_power_loss_comparison(task2_results['methods'], '../outputs/figures/report_power_loss_comparison.png')
         
         # Generate Task 3 plots
         print("\n--- Generating Task 3 Sensitivity Analysis Plots ---")
         task3_results = perform_sensitivity_analysis()
-        plot_sensitivity_analysis_comprehensive(task3_results, 'report_sensitivity_comprehensive.png')
+        plot_sensitivity_analysis_comprehensive(task3_results, '../outputs/figures/report_sensitivity_comprehensive.png')
         
         print("\n" + "="*100)
         print("ALL PLOTS GENERATED SUCCESSFULLY!")
         print("="*100)
         print("\nGenerated files:")
-        print("  1. report_voltage_comparison.png")
-        print("  2. report_convergence_comparison.png")
-        print("  3. report_voltage_difference_heatmap.png")
-        print("  4. report_power_loss_comparison.png")
-        print("  5. report_sensitivity_comprehensive.png")
+        print("  1. outputs/figures/report_voltage_comparison.png")
+        print("  2. outputs/figures/report_convergence_comparison.png")
+        print("  3. outputs/figures/report_voltage_difference_heatmap.png")
+        print("  4. outputs/figures/report_power_loss_comparison.png")
+        print("  5. outputs/figures/report_sensitivity_comprehensive.png")
         print("\nUse these high-quality plots in your assignment report.")
         print("="*100)
         

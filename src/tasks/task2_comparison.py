@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 Task 2: Verification and Comparison Framework
 ==============================================
@@ -16,10 +17,23 @@ Author: [Your Student ID]
 Date: January 2026
 """
 
+import sys
+import os
+
+# Add parent directory (src/) and root directory to Python path
+current_dir = os.path.dirname(os.path.abspath(__file__))
+src_dir = os.path.dirname(current_dir)
+root_dir = os.path.dirname(src_dir)
+legacy_dir = os.path.join(root_dir, 'legacy')
+
+sys.path.insert(0, src_dir)
+sys.path.insert(0, root_dir)
+sys.path.insert(0, legacy_dir)
+
 import numpy as np
 import pandas as pd
 import time
-from Newton_Raphson_Enhanced import (
+from methods.newton_raphson import (
     get_ieee_9_bus_data, build_y_bus, newton_raphson, calculate_line_flows
 )
 from Gauss_Seidel_Load_Flow import gauss_seidel
@@ -281,8 +295,8 @@ def save_results_to_csv(results):
     import os
     
     # Create results directory if it doesn't exist
-    if not os.path.exists('comparison_results'):
-        os.makedirs('comparison_results')
+    if not os.path.exists('../outputs/tables/comparison_results'):
+        os.makedirs('../outputs/tables/comparison_results')
     
     num_buses = results['system_data']['num_buses']
     methods = results['methods']
@@ -297,7 +311,7 @@ def save_results_to_csv(results):
         voltage_data.append(row)
     
     df_voltages = pd.DataFrame(voltage_data)
-    df_voltages.to_csv('comparison_results/bus_voltages.csv', index=False)
+    df_voltages.to_csv('../outputs/tables/comparison_results/bus_voltages.csv', index=False)
     
     # Save convergence data
     convergence_data = []
@@ -311,10 +325,10 @@ def save_results_to_csv(results):
         })
     
     df_convergence = pd.DataFrame(convergence_data)
-    df_convergence.to_csv('comparison_results/convergence_comparison.csv', index=False)
+    df_convergence.to_csv('../outputs/tables/comparison_results/convergence_comparison.csv', index=False)
     
     print("\n" + "="*100)
-    print("Results saved to CSV files in 'comparison_results/' directory:")
+    print("Results saved to CSV files in 'outputs/tables/comparison_results/' directory:")
     print("  - bus_voltages.csv")
     print("  - convergence_comparison.csv")
     print("="*100)
