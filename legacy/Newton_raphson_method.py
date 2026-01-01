@@ -1,26 +1,69 @@
+"""
+Full Newton-Raphson Load Flow Program for IEEE 9-Bus System
+============================================================
+This program implements the Full Newton-Raphson method for solving power flow equations.
+All matrices (Y-bus, Jacobian submatrices J1-J4) are constructed from first principles.
+
+Author: [Your Name/ID]
+Date: January 2026
+Course: EE-354 Power Engineering
+
+Line Number References (for Flowchart):
+- Lines 1-50: Imports and Y-bus construction
+- Lines 51-200: Newton-Raphson algorithm core
+- Lines 201-300: Results calculation and display
+"""
+
 import numpy as np
+
+# ==========================================
+# LINE 18-50: Y-BUS MATRIX CONSTRUCTION
+# ==========================================
 
 def build_y_bus(num_buses, branch_data):
     """
-    Constructs the Y-bus matrix from branch data.
-    branch_data: list of tuples (from_bus, to_bus, R, X, B)
+    Constructs the Y-bus admittance matrix from branch (line/transformer) data.
+    
+    Parameters:
+    -----------
+    num_buses : int
+        Total number of buses in the system
+    branch_data : list of tuples
+        Each tuple contains: (from_bus, to_bus, R, X, B)
+        where R = resistance (pu), X = reactance (pu), B = total line charging (pu)
+    
+    Returns:
+    --------
+    Y_bus : complex numpy array (num_buses x num_buses)
+        Admittance matrix where Y_ij represents admittance between buses i and j
+    
+    Flowchart Reference: Box 1 - Y-bus Construction
+    Line Numbers: 18-50
     """
+    # Initialize Y-bus matrix as complex zeros
     Y_bus = np.zeros((num_buses, num_buses), dtype=complex)
     
+    # Build Y-bus by processing each branch (line or transformer)
     for branch in branch_data:
         f, t, r, x, b = branch
-        # Convert 1-based index to 0-based
+        # Convert 1-based bus index to 0-based array index
         i = int(f) - 1
         j = int(t) - 1
         
+        # Calculate series admittance: y = 1/z = 1/(r + jx)
         z = complex(r, x)
         y = 1 / z
+        
+        # Calculate shunt admittance (half of total line charging at each end)
         b_shunt = complex(0, b / 2)
         
-        Y_bus[i, i] += y + b_shunt
-        Y_bus[j, j] += y + b_shunt
-        Y_bus[i, j] -= y
-        Y_bus[j, i] -= y
+        # Add to diagonal elements (self-admittance)
+        Y_bus[i, i] += y + b_shunt  # Bus i diagonal
+        Y_bus[j, j] += y + b_shunt  # Bus j diagonal
+        
+        # Add to off-diagonal elements (mutual admittance, negative)
+        Y_bus[i, j] -= y  # i-j element
+        Y_bus[j, i] -= y  # j-i element (symmetric)
         
     return Y_bus
 
