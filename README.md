@@ -301,84 +301,14 @@ pip install numpy pandas matplotlib seaborn
 
 ## 👤 Author Information
 
-**Student ID:** [REPLACE WITH YOUR STUDENT ID]  
+**Student ID:** [E/21/291]  
 **Course:** EE-354 Power Engineering  
-**Institution:** [Your Institution]  
+**Institution:** [University Of Peradeniya]  
 **Date:** January 2026
 
 ---
 
-## 📝 Notes for Report Writing
-
-### Task 1 Report Sections:
-1. **Methodology:** Explain NR formulation
-2. **Implementation:** Describe Y-bus and Jacobian construction
-3. **Results:** Show 2nd iteration output, convergence
-4. **Flowchart:** Include with line number references
-
-### Task 2 Report Sections:
-1. **Comparison Tables:** All methods side-by-side
-2. **Analysis:** Discuss accuracy and convergence
-3. **Deviations:** Explain differences
-4. **PSSE Comparison:** Document differences from PSSE
-
-### Task 3 Report Sections (2-3 pages):
-1. **Introduction:** Sensitivity analysis purpose
-2. **Results:** Tables and graphs
-3. **Discussion:** 
-   - Most influential load and why
-   - Voltage variation patterns
-   - P vs Q sensitivity
-   - System implications
-4. **Conclusions:** Key findings and recommendations
-
 ---
-
-## 📌 Important Reminders
-
-✅ **Before Submission:**
-- [ ] Replace Student ID in all files
-- [ ] Run all three tasks and verify outputs
-- [ ] Generate all plots with `Visualization_Tools.py`
-- [ ] Create flowchart using `Flowchart_Reference.md`
-- [ ] Write discussion sections
-- [ ] Check CSV files generated correctly
-- [ ] Verify 2nd iteration output is captured
-- [ ] Compare results with PSSE (if available)
-
----
-
-## 🎯 Grading Checklist
-
-### Task 1 (40%):
-- [ ] Full NR program from scratch
-- [ ] Y-bus constructed programmatically
-- [ ] Jacobian computed analytically
-- [ ] Flat start implemented
-- [ ] Detailed comments
-- [ ] Flowchart with line numbers
-- [ ] 2nd iteration output shown
-
-### Task 2 (30%):
-- [ ] All three methods run on IEEE 9-bus
-- [ ] Comparative tables generated
-- [ ] Numerical accuracy analyzed
-- [ ] Convergence compared
-- [ ] Deviations discussed
-- [ ] PSSE comparison completed
-
-### Task 3 (30%):
-- [ ] Load variations (-10%, 0%, +10%)
-- [ ] Voltage data collected
-- [ ] Variance calculated
-- [ ] Standard deviation computed
-- [ ] Sensitivity ranking done
-- [ ] Most influential load identified
-- [ ] 2-3 page discussion written
-- [ ] Graphs and tables included
-
----
-
 ## 📧 Support
 
 For questions about this implementation, refer to:
@@ -390,8 +320,3 @@ For questions about this implementation, refer to:
 
 **License:** MIT (for educational purposes)
 
-**Version:** 1.0 (January 2026)
-
----
-
-*Good luck with your assignment! 🎓*
