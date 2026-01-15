@@ -2,7 +2,6 @@
 
 ## 📂 Directory Structure
 
-This repository follows professional software engineering practices with a clean separation of concerns:
 
 ### `/src/` - Source Code
 All Python implementation files are organized here:
@@ -113,27 +112,8 @@ All scripts are designed to be run from the **repository root directory**.
 
 ---
 
-## 🎯 Benefits of This Structure
 
-1. **Professional Organization** - Industry-standard project layout
-2. **Clean Separation** - Code, docs, data, and outputs are separate
-3. **Easy Navigation** - Files are logically grouped by purpose
-4. **Scalability** - Easy to add new methods or tasks
-5. **Version Control** - `.gitignore` prevents tracking of generated files
-6. **Documentation** - All guides are centralized in `/docs/`
-7. **Reproducibility** - Clear structure makes it easy for others to understand
 
----
-
-## 💡 Tips
-
-- Always run scripts from the **root directory** of the repository
-- Generated outputs automatically go to `/outputs/` subdirectories
-- Legacy files are preserved for reference but not used in production
-- All documentation files are in Markdown format for easy reading
-- The main entry point (`main.py`) provides a user-friendly interface
-
----
 
 ## 🔄 Updating Your Student ID
 
@@ -149,14 +129,5 @@ Get-ChildItem -Path src -Filter *.py -Recurse | ForEach-Object {
 
 ---
 
-## 📊 Output Files
-
-After running the complete analysis:
-
-- **5 PNG figures** in `/outputs/figures/`
-- **8+ CSV files** in `/outputs/tables/`
-- All ready to use in your assignment report!
-
----
 
 *Last Updated: January 1, 2026*

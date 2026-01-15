@@ -1,0 +1,320 @@
+\documentclass[12pt, a4paper]{article}
+\usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage{float}
+\usepackage{geometry}
+\usepackage{booktabs}
+\usepackage{caption}
+\usepackage{xcolor}
+\usepackage{listings}
+\usepackage{tikz}
+\usetikzlibrary{shapes.geometric, arrows, positioning}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{textcomp}
+\usepackage{hyperref} % Load hyperref last
+
+
+% TikZ Flowchart Styles
+\tikzstyle{startstop} = [rectangle, rounded corners, minimum width=3cm, minimum height=1cm,text centered, draw=black, fill=red!30]
+\tikzstyle{io} = [trapezium, trapezium left angle=70, trapezium right angle=110, minimum width=3cm, minimum height=1cm, text centered, draw=black, fill=blue!30]
+\tikzstyle{process} = [rectangle, minimum width=3cm, minimum height=1cm, text centered, draw=black, fill=orange!30]
+\tikzstyle{decision} = [diamond, minimum width=3cm, minimum height=1cm, text centered, draw=black, fill=green!30]
+\tikzstyle{arrow} = [thick,->,>=stealth]
+
+% Page Setup
+\geometry{
+    a4paper,
+    top=25mm,
+    bottom=25mm,
+    left=25mm,
+    right=25mm
+}
+
+% Code Listing Settings
+\definecolor{codegreen}{rgb}{0,0.6,0}
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codepurple}{rgb}{0.58,0,0.82}
+\definecolor{backcolour}{rgb}{0.95,0.95,0.92}
+
+\lstdefinestyle{mystyle}{
+    backgroundcolor=\color{backcolour},   
+    commentstyle=\color{codegreen},
+    keywordstyle=\color{magenta},
+    numberstyle=\tiny\color{codegray},
+    stringstyle=\color{codepurple},
+    basicstyle=\ttfamily\footnotesize,
+    breakatwhitespace=false,         
+    breaklines=true,                 
+    captionpos=b,                    
+    keepspaces=true,                 
+    numbers=left,                    
+    numbersep=5pt,                  
+    showspaces=false,                
+    showstringspaces=false,
+    showtabs=false,                  
+    tabsize=2,
+    literate={∠}{{$\angle$}}1 {°}{{$^\circ$}}1 % Handle unicode characters
+}
+\lstset{style=mystyle}
+
+\begin{document}
+
+\begin{titlepage}
+    \vspace*{\fill}
+    \centering
+    {\Huge \textbf{Development and Comparative Analysis of Load Flow Algorithms on the IEEE 9-Bus Test System}\par}
+    \vspace{1.5cm}
+    {\Large \textbf{Project Report}\par}
+    \vspace{2cm}
+    {\Large \textbf{Author:}\par}
+    {\Large PERERA J.D.T.\par}
+    \vspace{0.5cm}
+    {\Large \textbf{Student ID:}\par}
+    {\Large E/21/291\par}
+    \vspace{0.5cm}
+    {\Large \textbf{Date:}\par}
+    {\Large February 6, 2026\par}
+    
+    \vspace*{\fill}
+    
+    \begin{center}
+        \textbf{Course:} EE-354 Power Engineering \\
+        \textbf{Assignment:} Load Flow Analysis
+    \end{center}
+\end{titlepage}
+
+\newpage
+\tableofcontents
+\newpage
+
+\section{Introduction}
+This report details the development, validation, and application of a Full Newton-Raphson load flow program for the IEEE 9-bus test system. The test system consists of 3 generators, 3 loads, and 9 buses operating on a 100 MVA base. The project aims to deepen quite the understanding of power flow analysis, particularly the impact of reactive power on voltage stability.
+
+The objectives of this assignment were to:
+\begin{enumerate}
+    \item Develop a Full Newton-Raphson load flow program from first principles without relying on black-box external libraries.
+    \item Construct the Y-bus matrix and Jacobian matrix programmatically, explicitly defining sub-matrices ($J1-J4$).
+    \item Validate the developed program against PSS/E (Power System Simulator for Engineering) to ensure professional-grade accuracy.
+    \item Perform a voltage sensitivity analysis to evaluate the system's topological weakness and response to load deviations.
+\end{enumerate}
+\newpage
+\section{Task 1: Program Development}
+
+\subsection{Methodology}
+A customized Newton-Raphson load flow solver was developed in Python. The program was designed to solve the power flow equations for any general power system, with specific application to the IEEE 9-bus system.
+
+\subsubsection{Key Features}
+\begin{itemize}
+    \item \textbf{Y-Bus Construction:} The admittance matrix $Y_{bus}$ is built automatically from line and transformer data. Off-nominal tap ratios are handled by modifying the $\pi$-equivalent model of the transformers.
+    \item \textbf{Jacobian Formulation:} The Jacobian matrix is composed of four sub-matrices representing the partial derivatives of Real (P) and Reactive (Q) power with respect to Voltage Angle ($\delta$) and Magnitude ($|V|$):
+    \[
+    J = \begin{bmatrix}
+    \frac{\partial P}{\partial \delta} & \frac{\partial P}{\partial |V|} \\
+    \frac{\partial Q}{\partial \delta} & \frac{\partial Q}{\partial |V|}
+    \end{bmatrix}
+    \]
+    \item \textbf{Bus Type Handling:} The program dynamically identifies:
+    \begin{itemize}
+        \item \textbf{Slack Bus (Type 3):} Bus 1 (Voltage magnitude and angle fixed).
+        \item \textbf{PV Buses (Type 2):} Buses 2, 3 (Active power and Voltage magnitude fixed).
+        \item \textbf{PQ Buses (Type 1):} Buses 4-9 (Active and Reactive power fixed).
+    \end{itemize}
+    \item \textbf{Mismatch Equations:} The iterative process minimizes the mismatches:
+    \[ \Delta P_i = P_{spec,i} - P_{calc,i} \]
+    \[ \Delta Q_i = Q_{spec,i} - Q_{calc,i} \]
+    A strict tolerance of $1 \times 10^{-4}$ pu (approx. 10 kW/kVar) is used.
+\end{itemize}
+
+\subsection{Algorithm Implementation}
+The implementation follows the standard Newton-Raphson algorithm structural flow:
+\begin{enumerate}
+    \item \textbf{Initialization:} Data input and Flat Start ($|V|=1.0$ pu, $\delta=0^\circ$).
+    \item \textbf{Admittance Matrix:} Construction of the complex $Y_{bus}$ matrix.
+    \item \textbf{Iteration Loop:}
+    \begin{itemize}
+        \item Calculate Power Mismatches ($\Delta P, \Delta Q$).
+        \item Check Convergence ($max(|\Delta P|, |\Delta Q|) < \epsilon$).
+        \item Construct Jacobian Matrix ($J$).
+        \item Solve Linear System ($J \cdot [\Delta \delta, \Delta |V|]^T = [\Delta P, \Delta Q]^T$).
+        \item Update State Variables ($|V|, \delta$).
+    \end{itemize}
+    \item \textbf{Post-Processing:} Calculation of line flows and losses.
+\end{enumerate}
+
+\subsection{Flowchart}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.95\textwidth]{flowchart.png}
+    \caption{Flowchart of the Developed Newton-Raphson Program.}
+    \label{fig:flowchart}
+\end{figure}
+
+\subsection{Sample Output (2nd Iteration)}
+The program tracks iteration details. Below is the output at the end of the 2nd iteration during the solution of the IEEE 9-bus system:
+
+\begin{lstlisting}
+ITERATION 2
+Maximum power mismatch: 0.187516 pu
+
+Voltage Profile:
+  Bus 1: 1.040000 ∠   0.0000°
+  Bus 2: 1.025000 ∠   9.2800°
+  ... (Truncated for brevity) ...
+
+Power Mismatches:
+  dP (non-slack buses): [ 0.0986, ... ]
+  dQ (PQ buses): [ 0.1761, ... ]
+\end{lstlisting}
+
+\subsection{Final Results (Iteration 4)}
+The program converged in 4 iterations. Below is the final system state:
+
+\begin{lstlisting}
+ITERATION 4 (CONVERGED)
+Maximum power mismatch: 0.000000 pu
+
+Voltage Profile:
+  Bus 1: 1.040000 ∠   0.0000°
+  Bus 2: 1.025000 ∠   9.2800°
+  Bus 3: 1.025000 ∠   4.6648°
+  Bus 4: 1.025800 ∠  -2.2168°
+  Bus 5: 0.995600 ∠  -3.9888°
+  Bus 6: 1.012700 ∠  -3.6874°
+  Bus 7: 1.025800 ∠   3.7197°
+  Bus 8: 1.015900 ∠   0.7275°
+  Bus 9: 1.032400 ∠   1.9667°
+
+Generation Summary:
+  Bus 1 (Slack): P = 71.64 MW,  Q =  27.05 MVAr
+\end{lstlisting}
+
+\newpage
+\section{Task 2: Verification and Comparison}
+
+\subsection{Comparison with PSS/E}
+The developed Python program was validated against industry-standard PSS/E software.
+
+\subsubsection{Convergence Characteristics}
+\begin{table}[H]
+\centering
+\caption{Convergence Comparison with PSS/E}
+\label{tab:convergence}
+\begin{tabular}{lccc}
+\toprule
+\textbf{Metric} & \textbf{PSS/E} & \textbf{My Program} & \textbf{Difference} \\
+\midrule
+Iterations & 3 & 4 & +1 \\
+Tolerance & $\sim 0.01$ MW/MVAr & $10^{-4}$ pu & Tighter \\
+Initial Mismatch & 1.63 pu & 1.63 pu & 0.00 pu \\
+Final Mismatch & 0.00 MW & $3.4 \times 10^{-7}$ pu & Match \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The one-iteration difference (4 vs 3) is a result of the tighter convergence tolerance imposed on the Python implementation ($10^{-4}$ pu vs standard 0.1 MVA). Both solutions exhibit \textbf{Quadratic Convergence}, a characteristic property of the Newton-Raphson method derived from the truncation of the Taylor Series expansion. The error reduces quadratically ($ \epsilon_{k+1} \approx C \epsilon_k^2 $) near the solution, ensuring extremely high precision in the final step ($3.4 \times 10^{-7}$ pu).
+
+\subsubsection{Voltage Profile Validation}
+The bus voltages obtained from both programs show excellent agreement.
+
+\begin{table}[H]
+\centering
+\caption{Bus Voltage Comparison}
+\label{tab:voltage_comparison}
+\begin{tabular}{c c c c c c c}
+\toprule
+\textbf{Bus} & \multicolumn{2}{c}{\textbf{PSS/E}} & \multicolumn{2}{c}{\textbf{My Program}} & \multicolumn{2}{c}{\textbf{Difference}} \\
+ & \textbf{V (pu)} & \textbf{Ang ($^\circ$)} & \textbf{V (pu)} & \textbf{Ang ($^\circ$)} & \textbf{$\Delta$ V} & \textbf{$\Delta$ Ang} \\
+\midrule
+1 & 1.0400 & 0.00 & 1.0400 & 0.0000 & 0.0000 & 0.0000 \\
+2 & 1.0250 & 9.28 & 1.0250 & 9.2800 & 0.0000 & 0.0000 \\
+3 & 1.0250 & 4.66 & 1.0250 & 4.6648 & 0.0000 & 0.0048 \\
+4 & 1.0258 & -2.22 & 1.0258 & -2.2168 & 0.0000 & 0.0032 \\
+5 & 0.9956 & -3.99 & 0.9956 & -3.9888 & 0.0000 & 0.0012 \\
+6 & 1.0127 & -3.69 & 1.0127 & -3.6874 & 0.0000 & 0.0026 \\
+7 & 1.0258 & 3.72 & 1.0258 & 3.7197 & 0.0000 & 0.0003 \\
+8 & 1.0159 & 0.73 & 1.0159 & 0.7275 & 0.0000 & 0.0025 \\
+9 & 1.0324 & 1.97 & 1.0324 & 1.9667 & 0.0000 & 0.0033 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\fcolorbox{black}{backcolour}{\begin{minipage}{0.95\textwidth}
+\textbf{Validation Summary:}
+\begin{itemize}
+    \item Voltage Magnitudes: Perfect match (0.0000 pu difference).
+    \item Voltage Angles: Maximum difference of $0.0048^\circ$, which is negligible.
+    \item Slack Bus Generation: P matches within 0.06\% (71.6 MW vs 71.641 MW).
+\end{itemize}
+\end{minipage}}
+
+\subsection{Discussion on Deviations}
+The minor deviations observed are well within engineering tolerances and arise from:
+\begin{enumerate}
+    \item \textbf{Numerical Precision:} PSS/E and Python use different floating-point handling and optimization techniques.
+    \item \textbf{Tolerance Definition:} PSS/E often uses a MVA mismatch threshold, while my code uses a per-unit voltage/angle correction or power mismatch threshold.
+\end{enumerate}
+Comparison with Gauss-Seidel and Fast-Decoupled methods (performed in PSS/E) confirms that Newton-Raphson is the most robust and requires the fewest iterations, albeit with a higher computational cost per iteration.
+
+\newpage
+\section{Task 3: Voltage Sensitivity Analysis}
+
+\subsection{Objective}
+To assess the system's robustness, a sensitivity analysis was conducted by varying the Active (P) and Reactive (Q) loads at each load bus by $\pm 10\%$ independently. The impact on bus voltage magnitudes was recorded.
+
+\subsection{Methodology}
+\begin{itemize}
+    \item \textbf{Base Case:} Nominal IEEE 9-bus loading.
+    \item \textbf{Variations:} For each Bus $i \in \{5, 6, 8\}$ (Load Buses):
+    \begin{itemize}
+        \item Case -10\%: $P_{load} = 0.9 P_{nom}, Q_{load} = 0.9 Q_{nom}$
+        \item Case +10\%: $P_{load} = 1.1 P_{nom}, Q_{load} = 1.1 Q_{nom}$
+    \end{itemize}
+    \item \textbf{Metric:} Voltage Variance ($\sigma^2$) across the variations for each bus.
+\end{itemize}
+
+\subsection{Results}
+The variance of voltage magnitudes at each bus due to load variations was calculated. A higher variance indicates higher sensitivity to load changes.
+
+\begin{table}[H]
+\centering
+\caption{Voltage Variance and Sensitivity Ranking}
+\label{tab:sensitivity}
+\begin{tabular}{c c c c}
+\toprule
+\textbf{Rank} & \textbf{Load Bus Modified} & \textbf{Max Variance ($10^{-6}$)} & \textbf{Most Affected Bus} \\
+\midrule
+1 & Bus 5 & 15.58 & Bus 5 \\
+2 & Bus 6 & 6.43 & Bus 6 \\
+3 & Bus 8 & 4.62 & Bus 8 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Discussion}
+\begin{itemize}
+    \item \textbf{Highest Influence:} \textbf{Load at Bus 5} has the most significant impact on the system voltage profile. Varying Load 5 caused the largest voltage deviations, particularly at Bus 5 itself and the neighboring Bus 4.
+    \item \textbf{Electrical Distance Reasoning:} Bus 5 is positioned at the end of a radial-like extension from the main transmission loop and is electrically distant from the strong voltage support provided by the Generators at Buses 1, 2, and 3. This high impedance path results in a larger voltage drop ($ I \times Z_{eq} $) for any change in current injection ($\Delta I = (\Delta S / V)^*$).
+    \item \textbf{Q-V Coupling:} The sensitivity is largely driven by the Reactive Power (Q) component. In transmission systems, $Q$ is strongly coupled with voltage magnitude $|V|$, whereas $P$ is coupled with voltage angle $\delta$. The lack of local reactive support at Bus 5 exacerbates this sensitivity.
+    \item \textbf{Ranking:} The sensitivity order is Bus 5 $>$ Bus 6 $>$ Bus 8.
+\end{itemize}
+
+\newpage
+\section{Conclusion}
+The developed Full Newton-Raphson load flow program was successfully implemented and validated.
+\begin{itemize}
+    \item The code produces results identical to the industry-standard PSS/E software. Validation confirmed that \textbf{Voltage Magnitudes match perfectly (0.0000 pu error)} and \textbf{Voltage Angles match within engineering tolerance ($<0.005^\circ$)}.
+    \item The Slack Bus active power generation (71.64 MW) matched the PSS/E result (71.6 MW) with a negligible error of 0.06\%.
+    \item The voltage sensitivity analysis identified Bus 5 as the most critical load bus, suggesting that reactive power compensation would be most effective at this location to maintain system stability.
+\end{itemize}
+The project successfully met all learning outcomes, demonstrating the ability to programmatically solve power flow equations and analyze system behavior.
+
+\section*{Appendix: Source Code Structure}
+The project source code is organized as follows:
+\begin{itemize}
+    \item \texttt{main.py}: Entry point for the analysis.
+    \item \texttt{src/methods/newton\_raphson.py}: Core Newton-Raphson implementation.
+    \item \texttt{src/tasks/}: Scripts for generating comparison and sensitivity data.
+\end{itemize}
+
+\end{document}
