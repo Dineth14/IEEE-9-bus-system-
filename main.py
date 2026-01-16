@@ -6,7 +6,7 @@ Main Entry Point
 This script provides a convenient way to run all analysis tasks.
 For detailed implementation, see src/run_all.py
 
-Student ID: [REPLACE WITH YOUR ID]
+Student ID: [E21291]
 Course: EE-354 Power Engineering
 Assignment: Load Flow Analysis on IEEE 9-Bus System
 """

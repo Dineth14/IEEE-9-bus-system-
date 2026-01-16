@@ -513,7 +513,7 @@ if __name__ == "__main__":
     print("*"*80)
     
     # LINE 625: Student Information
-    print("\nStudent ID: [REPLACE WITH YOUR ID]")  # REPLACE THIS
+    print("\nStudent ID: [E21291]")  # REPLACE THIS
     print("Date: January 2026")
     
     # LINE 629-632: Load system data

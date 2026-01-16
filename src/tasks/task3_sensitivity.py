@@ -10,7 +10,7 @@ For each load bus:
 3. Calculate variance and standard deviation
 4. Identify which load has the highest influence on system voltages
 
-Author: [Your Student ID]
+Author: [E21291]
 Date: January 2026
 """
 

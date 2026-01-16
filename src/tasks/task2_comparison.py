@@ -13,7 +13,7 @@ Outputs:
 - Iteration counts
 - Computational time comparison
 
-Author: [Your Student ID]
+Author: [E21291]
 Date: January 2026
 """
 
