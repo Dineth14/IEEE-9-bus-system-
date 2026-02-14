@@ -23,8 +23,6 @@ def get_ieee_9_bus_data():
     """
     Returns IEEE 9-Bus system data.
     
-    Author: Perera J.D.T (E/21/291)
-    
     Returns:
     --------
     num_buses : int
@@ -80,8 +78,6 @@ def get_ieee_9_bus_data():
 def build_y_bus(num_buses, branch_data):
     """
     Constructs the Y-bus admittance matrix from branch data.
-    
-    Author: Perera J.D.T (E/21/291)
     """
     Y_bus = np.zeros((num_buses, num_buses), dtype=complex)
     
@@ -109,8 +105,6 @@ def newton_raphson(Y_bus, P_specified, Q_specified, V_init, bus_types,
                    max_iter=100, tol=1e-4, verbose=True):
     """
     Solves power flow equations using Full Newton-Raphson method.
-    
-    Author: Perera J.D.T (E/21/291)
     """
     num_buses = len(Y_bus)
     V = np.array(V_init, copy=True)
@@ -126,7 +120,6 @@ def newton_raphson(Y_bus, P_specified, Q_specified, V_init, bus_types,
         print("\n" + "="*80)
         print("STARTING NEWTON-RAPHSON LOAD FLOW ANALYSIS")
         print("="*80)
-        print(f"Student ID: E/21/291")
     
     for iteration in range(max_iter):
         if verbose:
@@ -228,8 +221,6 @@ def newton_raphson(Y_bus, P_specified, Q_specified, V_init, bus_types,
 def calculate_line_flows(V, branch_data):
     """
     Calculates power flows and losses.
-    
-    Author: Perera J.D.T (E/21/291)
     """
     line_flows = []
     total_loss_P = 0
@@ -267,8 +258,6 @@ def calculate_line_flows(V, branch_data):
 def print_results(V, P_calc, Q_calc, line_flows, total_loss_P, total_loss_Q, num_buses):
     """
     Prints results to console.
-    
-    Author: Perera J.D.T (E/21/291)
     """
     print("\n" + "="*80)
     print("FINAL RESULTS - BUS DATA")
@@ -296,8 +285,6 @@ def print_results(V, P_calc, Q_calc, line_flows, total_loss_P, total_loss_Q, num
 def save_results_to_csv(V, P_calc, Q_calc, line_flows, total_loss_P, total_loss_Q, num_buses):
     """
     Saves results to CSV (for reporting graphs).
-    
-    Author: Perera J.D.T (E/21/291)
     """
     if not os.path.exists('outputs/tables'):
         os.makedirs('outputs/tables')
