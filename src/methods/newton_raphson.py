@@ -19,6 +19,8 @@ Date: January 2026
 
 import numpy as np
 import time
+import pandas as pd
+import os
 from datetime import datetime
 
 # ==========================================
@@ -511,6 +513,39 @@ def print_results(V, P_calc, Q_calc, line_flows, total_loss_P, total_loss_Q,
 
 
 # ==========================================
+
+def save_results_to_csv(V, P_calc, Q_calc, line_flows, total_loss_P, total_loss_Q, num_buses):
+    """
+    Saves load flow results to CSV files for report generation.
+    """
+    if not os.path.exists('outputs/tables'):
+        os.makedirs('outputs/tables')
+        
+    # 1. Bus Results
+    bus_data = []
+    for i in range(num_buses):
+        bus_data.append({
+            'Bus': i + 1,
+            'Voltage_pu': np.abs(V[i]),
+            'Angle_deg': np.degrees(np.angle(V[i])),
+            'P_pu': P_calc[i],
+            'Q_pu': Q_calc[i]
+        })
+    df_bus = pd.DataFrame(bus_data)
+    df_bus.to_csv('outputs/tables/bus_results.csv', index=False)
+    
+    # 2. Line Flows
+    df_lines = pd.DataFrame(line_flows)
+    df_lines.to_csv('outputs/tables/line_flows.csv', index=False)
+    
+    # 3. Losses
+    with open('outputs/tables/system_losses.txt', 'w') as f:
+        f.write(f"Total Active Power Loss: {total_loss_P:.6f} pu\n")
+        f.write(f"Total Reactive Power Loss: {total_loss_Q:.6f} pu\n")
+    
+    print("\nResults saved to 'outputs/tables/' directory.")
+
+# ==========================================
 # LINES 610-700: MAIN PROGRAM
 # ==========================================
 
@@ -569,6 +604,14 @@ if __name__ == "__main__":
     # LINE 671-675: Display results
     print_results(V_final, P_final, Q_final, line_flows, total_loss_P, 
                   total_loss_Q, iter_data, num_buses)
+    
+    # Save results to CSV (Lecturer Feedback Requirement)
+    save_results_to_csv(V_final, P_final, Q_final, line_flows, total_loss_P, 
+                        total_loss_Q, num_buses)
+    
+    # Save to CSV
+    save_results_to_csv(V_final, P_final, Q_final, line_flows, total_loss_P, 
+                        total_loss_Q, num_buses)
     
     # LINE 678-685: Summary statistics
     print("\n" + "="*80)
