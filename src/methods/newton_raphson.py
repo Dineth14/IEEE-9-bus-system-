@@ -19,6 +19,7 @@ Date: January 2026
 
 import numpy as np
 import time
+from datetime import datetime
 
 # ==========================================
 # LINES 25-100: DATA INPUT AND Y-BUS CONSTRUCTION
@@ -345,7 +346,20 @@ def newton_raphson(Y_bus, P_specified, Q_specified, V_init, bus_types,
                     )
         
         # LINE 391: Assemble full Jacobian matrix
+        # LINE 391: Assemble full Jacobian matrix
         J = np.block([[J1, J2], [J3, J4]])
+        
+        # Evidence of Jacobian Construction (for Assignment Requirement)
+        if iteration == 0 and verbose:
+            print("\n" + "-"*40)
+            print("Jacobian Matrix Constructed (First Iteration)")
+            print(f"Size: {J.shape}")
+            print("Sub-matrices:")
+            print(f"  J1 (dP/dδ): {J1.shape}")
+            print(f"  J2 (dP/dV): {J2.shape}")
+            print(f"  J3 (dQ/dδ): {J3.shape}")
+            print(f"  J4 (dQ/dV): {J4.shape}")
+            print("-"*40)
         
         # LINE 394: Solve linear system: J * dx = mismatch
         dx = np.linalg.solve(J, mismatch)
@@ -513,8 +527,10 @@ if __name__ == "__main__":
     print("*"*80)
     
     # LINE 625: Student Information
-    print("\nStudent ID: [E21291]")  # REPLACE THIS
-    print("Date: January 2026")
+    print("\n" + "="*40)
+    print(f"Student ID: E/21/291")
+    print(f"Execution Time: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+    print("="*40)
     
     # LINE 629-632: Load system data
     print("\n--- Loading IEEE 9-Bus System Data ---")

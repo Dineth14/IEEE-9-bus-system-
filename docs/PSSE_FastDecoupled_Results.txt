@@ -1,0 +1,27 @@
+ Ordering network...
+ Diagonals = 8   Off-diagonals = 11   Maximum size = 16
+
+  ITER       DELTAP      BUS         DELTAQ      BUS        DELTA/V/      BUS       DELTAANG      BUS
+   0.0       1.6300(        2   )    0.8614(        4   )
+                                                             0.00000(            )   0.17750(        2   )
+   0.5       0.0164(        5   )    0.9370(        4   )
+                                                             0.03234(        9   )   0.00000(            )
+   1.0       0.0871(        5   )    0.0245(        4   )
+                                                             0.00000(            )   0.01534(        2   )
+   1.5       0.0001(        5   )    0.0313(        4   )
+                                                             0.00200(        6   )   0.00000(            )
+   2.0       0.0043(        4   )    0.0001(        6   )
+                                                             0.00000(            )   0.00026(        6   )
+   2.5       0.0000(        4   )    0.0011(        6   )
+                                                             0.00008(        6   )   0.00000(            )
+   3.0       0.0002(        6   )    0.0000(        6   )
+
+
+ Reached tolerance in 3 iterations
+
+ Largest mismatch:     -0.02 MW      0.00 Mvar      0.02 MVA at bus 6 [            230.00]
+ System total absolute mismatch:                    0.04 MVA
+
+ SWING BUS SUMMARY:
+   BUS# X-- NAME --X BASKV      PGEN     PMAX    PMIN      QGEN     QMAX    QMIN
+      1             16.500      71.6   9999.0 -9999.0      27.0   9999.0 -9999.0
