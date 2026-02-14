@@ -1,0 +1,2 @@
+Total Active Power Loss: 0.046410 pu
+Total Reactive Power Loss: -0.921601 pu
