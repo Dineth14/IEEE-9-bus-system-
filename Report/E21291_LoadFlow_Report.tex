@@ -189,6 +189,38 @@ Generation Summary:
   Bus 1 (Slack): P = 71.64 MW,  Q =  27.05 MVAr
 \end{lstlisting}
 
+\subsubsection{Line Flows and System Losses}
+The calculated power flows and losses for each branch (Iteration 4) are presented below.
+
+\begin{table}[H]
+\centering
+\caption{Line Flows and Losses (Iteration 4)}
+\label{tab:line_flows}
+\resizebox{\textwidth}{!}{
+\begin{tabular}{c c c c c c c c}
+\toprule
+\textbf{From} & \textbf{To} & \textbf{P flow (pu)} & \textbf{Q flow (pu)} & \textbf{P loss (pu)} & \textbf{Q loss (pu)} \\
+\midrule
+4 & 5 & 0.4094 & 0.2289 & 0.0026 & -0.1579 \\
+4 & 6 & 0.3070 & 0.0103 & 0.0017 & -0.1551 \\
+5 & 7 & -0.8432 & -0.1131 & 0.0230 & -0.1969 \\
+6 & 9 & -0.5946 & -0.1346 & 0.0135 & -0.3153 \\
+7 & 8 & 0.7638 & -0.0080 & 0.0048 & -0.1150 \\
+8 & 9 & -0.2410 & -0.2430 & 0.0009 & -0.2118 \\
+1 & 4 & 0.7164 & 0.2705 & 0.0000 & 0.0312 \\
+2 & 7 & 1.6300 & 0.0665 & 0.0000 & 0.1583 \\
+3 & 9 & 0.8500 & -0.1086 & 0.0000 & 0.0410 \\
+\bottomrule
+\end{tabular}
+}
+\end{table}
+
+\textbf{Total System Losses:}
+\begin{itemize}
+    \item Total Active Power Loss: \textbf{4.64 MW} (0.0464 pu).
+    \item Total Reactive Power Loss: \textbf{-92.16 MVAr} (-0.9216 pu). The negative value indicates the system generates reactive power due to high line charging susceptance.
+\end{itemize}
+
 \newpage
 \section{Task 2: Verification and Comparison}
 
@@ -213,6 +245,30 @@ Final Mismatch & 0.00 MW & $3.4 \times 10^{-7}$ pu & Match \\
 \end{table}
 
 The one-iteration difference (4 vs 3) is a result of the tighter convergence tolerance imposed on the Python implementation ($10^{-4}$ pu vs standard 0.1 MVA). Both solutions exhibit \textbf{Quadratic Convergence}, a characteristic property of the Newton-Raphson method derived from the truncation of the Taylor Series expansion. The error reduces quadratically ($ \epsilon_{k+1} \approx C \epsilon_k^2 $) near the solution, ensuring extremely high precision in the final step ($3.4 \times 10^{-7}$ pu).
+
+\subsubsection{Algorithm Comparison (PSS/E Results)}
+The Newton-Raphson method was compared against Gauss-Seidel and Fast Decoupled Load Flow (FDLF) methods simulated in PSS/E.
+
+\begin{table}[H]
+\centering
+\caption{Comparison of Load Flow Methods (PSS/E vs Python)}
+\label{tab:method_comparison}
+\begin{tabular}{l c c c}
+\toprule
+\textbf{Method} & \textbf{Iterations} & \textbf{Convergence Speed} & \textbf{Robustness} \\
+\midrule
+Gauss-Seidel (PSS/E) & 18 & Slow (Linear) & Low \\
+Fast Decoupled (PSS/E) & 3 & Fast & Medium \\
+Newton-Raphson (PSS/E) & 3 & Fast (Quadratic) & High \\
+\textbf{Newton-Raphson (My Code)} & \textbf{4} & \textbf{Fast (Quadratic)} & \textbf{High} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The Newton-Raphson method requires significantly fewer iterations (4) compared to Gauss-Seidel (18), demonstrating its superior convergence properties for complex systems. While FDLF also converged in 3 iterations, NR is generally preferred for systems where R/X ratios are high or voltage coupling is strong.
+
+\subsubsection{Loss Verification}
+Total Active Power Loss calculated by the program (4.64 MW) matches the PSS/E generation-load mismatch (319.6 MW Generation - 315 MW Load = 4.6 MW) precisely.
 
 \subsubsection{Voltage Profile Validation}
 The bus voltages obtained from both programs show excellent agreement.
@@ -265,45 +321,61 @@ To assess the system's robustness, a sensitivity analysis was conducted by varyi
 \subsection{Methodology}
 \begin{itemize}
     \item \textbf{Base Case:} Nominal IEEE 9-bus loading.
-    \item \textbf{Variations:} For each Bus $i \in \{5, 6, 8\}$ (Load Buses):
-    \begin{itemize}
-        \item Case -10\%: $P_{load} = 0.9 P_{nom}, Q_{load} = 0.9 Q_{nom}$
-        \item Case +10\%: $P_{load} = 1.1 P_{nom}, Q_{load} = 1.1 Q_{nom}$
-    \end{itemize}
-    \item \textbf{Metric:} Voltage Variance ($\sigma^2$) across the variations for each bus.
+    \item \textbf{Independent Variations:}
+    \begin{enumerate}
+        \item \textbf{Active Power (P) Sensitivity:} For each load bus, $P_{load}$ was varied by $\pm 10\%$ while $Q_{load}$ was kept constant.
+        \item \textbf{Reactive Power (Q) Sensitivity:} For each load bus, $Q_{load}$ was varied by $\pm 10\%$ while $P_{load}$ was kept constant.
+    \end{enumerate}
+    \item \textbf{Metric:} Standard Deviation ($\sigma$) of voltage magnitudes at all buses.
 \end{itemize}
 
 \subsection{Results}
-The variance of voltage magnitudes at each bus due to load variations was calculated. A higher variance indicates higher sensitivity to load changes.
+The analysis reveals distinct sensitivity patterns for Active and Reactive power variations.
 
+\subsubsection{Sensitivity to Active Power (P)}
 \begin{table}[H]
 \centering
-\caption{Voltage Variance and Sensitivity Ranking}
-\label{tab:sensitivity}
+\caption{Voltage Sensitivity to P Variations}
+\label{tab:sens_p}
 \begin{tabular}{c c c c}
 \toprule
-\textbf{Rank} & \textbf{Load Bus Modified} & \textbf{Max Variance ($10^{-6}$)} & \textbf{Most Affected Bus} \\
+\textbf{Load Bus} & \textbf{Avg Std Dev ($10^{-4}$)} & \textbf{Max Std Dev ($10^{-4}$)} & \textbf{Most Affected Bus} \\
 \midrule
-1 & Bus 5 & 15.58 & Bus 5 \\
-2 & Bus 6 & 6.43 & Bus 6 \\
-3 & Bus 8 & 4.62 & Bus 8 \\
+Bus 5 & 2.1 & 4.5 & Bus 5 \\
+Bus 6 & 1.3 & 2.8 & Bus 6 \\
+Bus 8 & 0.9 & 1.9 & Bus 8 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsubsection{Sensitivity to Reactive Power (Q)}
+\begin{table}[H]
+\centering
+\caption{Voltage Sensitivity to Q Variations}
+\label{tab:sens_q}
+\begin{tabular}{c c c c}
+\toprule
+\textbf{Load Bus} & \textbf{Avg Std Dev ($10^{-4}$)} & \textbf{Max Std Dev ($10^{-4}$)} & \textbf{Most Affected Bus} \\
+\midrule
+Bus 5 & \textbf{14.2} & \textbf{28.5} & Bus 5 \\
+Bus 6 & 8.5 & 16.2 & Bus 6 \\
+Bus 8 & 6.1 & 12.8 & Bus 8 \\
 \bottomrule
 \end{tabular}
 \end{table}
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.95\textwidth]{sensitivity_analysis_plots.png}
-    \caption{Visual Analysis of Voltage Sensitivity: (a) Voltage Variance Heatmap, (b) Sensitivity Ranking, (c) Voltage Profile for Bus 5 Load Variation, (d) Standard Deviation Comparison.}
-    \label{fig:sensitivity_plots}
+    \includegraphics[width=0.95\textwidth]{sensitivity_comparison_PQ.png}
+    \caption{Comparative Voltage Sensitivity: Impact of P vs Q Variations on Maximum Voltage Standard Deviation.}
+    \label{fig:sensitivity_pq}
 \end{figure}
 
 \subsection{Discussion}
 \begin{itemize}
-    \item \textbf{Highest Influence:} \textbf{Load at Bus 5} has the most significant impact on the system voltage profile. Varying Load 5 caused the largest voltage deviations, particularly at Bus 5 itself and the neighboring Bus 4.
-    \item \textbf{Electrical Distance Reasoning:} Bus 5 is positioned at the end of a radial-like extension from the main transmission loop and is electrically distant from the strong voltage support provided by the Generators at Buses 1, 2, and 3. This high impedance path results in a larger voltage drop ($ I \times Z_{eq} $) for any change in current injection ($\Delta I = (\Delta S / V)^*$).
-    \item \textbf{Q-V Coupling:} The sensitivity is largely driven by the Reactive Power (Q) component. In transmission systems, $Q$ is strongly coupled with voltage magnitude $|V|$, whereas $P$ is coupled with voltage angle $\delta$. The lack of local reactive support at Bus 5 exacerbates this sensitivity.
-    \item \textbf{Ranking:} The sensitivity order is Bus 5 $>$ Bus 6 $>$ Bus 8.
+    \item \textbf{Dominance of Q-V Coupling:} The results explicitly confirm that \textbf{Reactive Power (Q) variations have a much larger impact on voltage magnitudes} than Active Power (P) variations. For Bus 5, the maximum standard deviation due to Q variation ($28.5 \times 10^{-4}$) is approximately \textbf{6 times larger} than that due to P variation ($4.5 \times 10^{-4}$). This aligns with power system theory, where $V$ is strongly coupled with $Q$.
+    \item \textbf{Critical Bus Identification:} \textbf{Bus 5} remains the most sensitive location. It is electrically furthest from the PV buses (2 and 3) and the Slack bus (1), meaning it has the lowest short-circuit strength and reactive support.
+    \item \textbf{System Stability Implication:} To improve voltage stability, reactive power compensation (capacitor banks or STATCOM) should be prioritized at Bus 5. Controlling P at Bus 5 yields minimal voltage benefits.
 \end{itemize}
 
 \newpage
@@ -317,11 +389,18 @@ The developed Full Newton-Raphson load flow program was successfully implemented
 The project successfully met all learning outcomes, demonstrating the ability to programmatically solve power flow equations and analyze system behavior.
 
 \section*{Appendix: Source Code Structure}
-The project source code is organized as follows:
-\begin{itemize}
-    \item \texttt{main.py}: Entry point for the analysis.
-    \item \texttt{src/methods/newton\_raphson.py}: Core Newton-Raphson implementation.
-    \item \texttt{src/tasks/}: Scripts for generating comparison and sensitivity data.
-\end{itemize}
+\section*{Appendix: Source Code}
+
+\subsection*{A.1 Main Program (main.py)}
+\lstinputlisting[language=Python, caption=Main Entry Point]{../main.py}
+
+\subsection*{A.2 Newton-Raphson Implementation (src/methods/newton\_raphson.py)}
+\lstinputlisting[language=Python, caption=Newton-Raphson Solver]{../src/methods/newton_raphson.py}
+
+\subsection*{A.3 Improved Sensitivity Analysis (src/tasks/task3\_sensitivity\_improved.py)}
+\lstinputlisting[language=Python, caption=Sensitivity Analysis Script]{../src/tasks/task3_sensitivity_improved.py}
+
+\subsection*{A.4 Execution Log (Proof of Execution)}
+\lstinputlisting[basicstyle=\ttfamily\scriptsize, breaklines=true, caption=Program Output with Timestamp]{../outputs/execution_proof.txt}
 
 \end{document}
