@@ -1,322 +1,53 @@
-# IEEE 9-Bus System Load Flow Analysis
-## EE-354 Power Engineering Assignment
+# IEEE 9-Bus System — Newton-Raphson Load Flow Analysis
 
-**Deadline:** February 6, 2026
-
----
-
-## 📋 Assignment Overview
-
-This project implements a comprehensive load flow analysis on the IEEE 9-Bus test system, including:
-
-1. **Full Newton-Raphson** load flow program (developed from first principles)
-2. **Gauss-Seidel** load flow method
-3. **Fast Decoupled** load flow method
-4. **Comparative analysis** of all three methods
-5. **Voltage sensitivity analysis** under load variations
-
----
-
-## 📁 Project Structure
-
-```
-IEEE-9-bus-system/
-│
-├── src/                                # Source code
-│   ├── methods/                        # Load flow implementations
-│   │   ├── newton_raphson.py           # Task 1: Full NR (MAIN)
-│   │   └── __init__.py
-│   ├── tasks/                          # Assignment tasks
-│   │   ├── task2_comparison.py         # Task 2: Method comparison
-│   │   ├── task3_sensitivity.py        # Task 3: Voltage sensitivity
-│   │   └── __init__.py
-│   ├── visualization.py                # Plotting functions
-│   ├── run_all.py                      # Master execution script
-│   └── __init__.py
-│
-├── docs/                               # Documentation
-│   ├── ASSIGNMENT_GUIDE.md             # Step-by-step guide
-│   ├── Flowchart_Reference.md          # Flowchart with line numbers
-│   ├── PSSE_Validation.md              # PSSE comparison analysis
-│   ├── PSSE_Report_Tables.md           # Report-ready tables
-│   └── QUICK_REFERENCE.md              # Quick reference guide
-│
-├── data/                               # Input data
-│   └── Ieee_9_bus.raw                  # System data file
-│
-├── outputs/                            # Generated outputs
-│   ├── figures/                        # Report-quality plots
-│   │   ├── report_voltage_comparison.png
-│   │   ├── report_convergence_comparison.png
-│   │   ├── report_voltage_difference_heatmap.png
-│   │   ├── report_power_loss_comparison.png
-│   │   └── report_sensitivity_comprehensive.png
-│   └── tables/                         # CSV results
-│       ├── comparison_results/         # Task 2 outputs
-│       └── sensitivity_results/        # Task 3 outputs
-│
-├── legacy/                             # Original implementations
-│   ├── Newton_raphson_method.py
-│   ├── Gauss_Seidel_Load_Flow.py
-│   └── Fast_Decoupled_Load_Flow.py
-│
-├── main.py                             # Main entry point
-├── README.md                           # This file
-└── .gitignore                          # Git ignore rules
-```
-
----
-
-## 🚀 Quick Start
-
-### Prerequisites
-
-```bash
-pip install numpy pandas matplotlib seaborn
-```
-
-### Running the Analysis
-
-#### Option 1: Run Everything (Recommended)
-```bash
-python main.py --all
-```
-or
-```bash
-python src/run_all.py
-```
-
-#### Option 2: Run Individual Tasks
-
-**Task 1: Newton-Raphson Load Flow**
-```bash
-python src/methods/newton_raphson.py
-```
-**Outputs:**
-- Bus voltages and angles
-- Line flows and system losses
-- **2nd iteration details** (required for Task 1)
-- Convergence statistics
-
-**Task 2: Comparison of All Methods**
-```bash
-python src/tasks/task2_comparison.py
-```
-**Outputs:**
-- Comparative tables (voltage, angles, losses)
-- Convergence characteristics
-- CSV files in `outputs/tables/comparison_results/`
-- Discussion points for report
-
-**Task 3: Voltage Sensitivity Analysis**
-```bash
-python src/tasks/task3_sensitivity.py
-```
-**Outputs:**
-- Voltage variance and standard deviation
-- Sensitivity ranking of load buses
-- Detailed voltage profiles
-- CSV files in `outputs/tables/sensitivity_results/`
-- Plots for report
-
-**Generate All Plots**
-```bash
-python src/visualization.py
-```
-**Outputs:**
-- High-quality plots for report (saved in `outputs/figures/`)
-- Voltage comparison plots
-- Convergence comparison
-- Sensitivity analysis visualizations
-
----
-
-## 📊 Key Features
-
-### Newton-Raphson Implementation
-
-✅ **From First Principles:**
-- Y-bus matrix constructed from branch data
-- Full Jacobian matrix (J1, J2, J3, J4) computed analytically
-- No built-in load flow solvers used
-
-✅ **Assignment Requirements:**
-- Flat start initialization (1.0∠0° for PQ buses)
-- Bus classification (Slack, PV, PQ)
-- Iteration-by-iteration tracking
-- 2nd iteration output captured
-- Line-by-line comments
-- Flowchart reference with line numbers
-
-✅ **Detailed Output:**
-- Bus voltages (magnitude and angle)
-- Power injections at all buses
-- Line power flows (both directions)
-- Total system losses
-- Convergence statistics
-
-### Task 2: Comparison Framework
-
-Compares three methods on:
-- **Numerical Accuracy:** Voltage differences (< 0.001 pu tolerance)
-- **Convergence:** Iterations and computation time
-- **System Losses:** P and Q losses
-- **Discussion:** Reasons for deviations
-
-### Task 3: Sensitivity Analysis
-
-For each load bus (5, 6, 8):
-- Varies P and Q by -10%, 0%, +10% (9 scenarios each)
-- Records voltage magnitudes at all buses
-- Calculates variance and standard deviation
-- Identifies most influential load
-- Statistical analysis with rankings
-
----
-
-## 📖 Assignment Deliverables
-
-### Task 1 Deliverables
-- ✅ Source code: `Newton_Raphson_Enhanced.py`
-- ✅ Flowchart reference: `Flowchart_Reference.md`
-- ✅ 2nd iteration output: Automatically printed by program
-
-### Task 2 Deliverables
-- ✅ Comparative tables: Printed and saved to CSV
-- ✅ Plots: Generated by `Visualization_Tools.py`
-- ✅ Discussion points: Provided in output
-
-### Task 3 Deliverables
-- ✅ Voltage variation tables: Saved to CSV
-- ✅ Sensitivity ranking: Calculated and displayed
-- ✅ Voltage profile graphs: Generated automatically
-- ✅ Discussion guidelines: Printed by program
-
----
-
-## 🔬 IEEE 9-Bus System Data
-
-### System Configuration
-- **Total Buses:** 9
-- **Slack Bus:** Bus 1 (1.04 pu)
-- **PV Buses:** Buses 2, 3 (1.025 pu)
-- **PQ Buses (Loads):** Buses 5, 6, 8
-
-### Generation
-- Bus 1 (Slack): Supplies balance
-- Bus 2 (PV): 163 MW
-- Bus 3 (PV): 85 MW
-
-### Loads
-- Bus 5: 125 MW, 50 MVAr
-- Bus 6: 90 MW, 30 MVAr
-- Bus 8: 100 MW, 35 MVAr
-
-### Network
-- 6 transmission lines (with charging)
-- 3 transformers (buses 1-4, 2-7, 3-9)
-
----
-
-## 📐 Algorithm Details
-
-### Newton-Raphson Method
-
-**Equation:** J · Δx = Δf
-
-Where:
-- J = Jacobian matrix [J1, J2; J3, J4]
-- Δx = [Δδ; Δ|V|] (angle and magnitude corrections)
-- Δf = [ΔP; ΔQ] (power mismatches)
-
-**Convergence:** Quadratic (typically 3-5 iterations)
-
-**Tolerance:** 1e-4 pu
-
-### Gauss-Seidel Method
-
-**Update:** V_i^(k+1) = (1/Y_ii) · [(S_i*/V_i*) - Σ Y_ij · V_j]
-
-**Convergence:** Linear (slower, ~50-100 iterations)
-
-### Fast Decoupled Method
-
-**Decoupling:** P-θ and Q-V equations solved separately
-
-**Approximations:**
-- B' ≈ -Im(Y) for P-θ
-- B'' ≈ -Im(Y) for Q-V
-
-**Convergence:** Between NR and GS
-
----
-
-## 📈 Expected Results
-
-### Convergence Comparison
-| Method | Iterations | Time (typical) |
-|--------|-----------|----------------|
-| Newton-Raphson | 3-5 | < 0.01 s |
-| Gauss-Seidel | 50-100 | 0.01-0.02 s |
-| Fast Decoupled | 4-7 | < 0.01 s |
-
-### Voltage Ranges
-- All buses: 0.95 - 1.05 pu (typical)
-- Slack/PV buses: Controlled
-- PQ buses: Dependent on loads
-
----
-
-## 🛠️ Troubleshooting
-
-### Common Issues
-
-**Issue:** ModuleNotFoundError
-```bash
-# Solution: Install required packages
-pip install numpy pandas matplotlib seaborn
-```
-
-**Issue:** Import errors between files
-```bash
-# Solution: Ensure all .py files are in same directory
-# Check Python path if needed
-```
-
-**Issue:** Convergence failure
-- Check input data format
-- Verify flat start initialization
-- Increase max_iter if needed
-
----
-
-## 📚 References
-
-1. Grainger & Stevenson, "Power System Analysis"
-2. Saadat, "Power System Analysis"
-3. IEEE 9-Bus Test System Documentation
-4. PSSE User Manual (for comparison)
-
----
-
-## 👤 Author Information
-
-**Student ID:** [E/21/291]  
+**Student:** E/21/291  
 **Course:** EE-354 Power Engineering  
-**Institution:** [University Of Peradeniya]  
-**Date:** January 2026
 
----
+## Repository Structure
 
----
-## 📧 Support
+```
+├── E21291_LoadFlow.py          # Main NR solver (standalone, self-contained)
+├── data/
+│   └── Ieee_9_bus.raw          # PSS/E raw data file for verification
+├── scripts/
+│   ├── produce_task2_plots.py  # Generate PSS/E comparison plots
+│   ├── produce_task3_remediation.py  # Sensitivity analysis runner
+│   ├── create_screenshot.py    # Generate execution proof image
+│   └── generate_flowchart.py   # Generate algorithm flowchart
+├── Report/
+│   ├── E21291_LoadFlow_Report.tex  # LaTeX report
+│   ├── code_appendix/          # Source files included in report appendix
+│   ├── flowchart.png           # Algorithm flowchart
+│   ├── execution_proof.png     # Convergence proof screenshot
+│   └── *.png                   # Figures referenced by the report
+├── docs/
+│   ├── PSSE_*.txt              # PSS/E validation results
+│   ├── PSSE_Validation.md      # Detailed PSS/E comparison
+│   └── ASSIGNMENT_GUIDE.md     # Assignment requirements reference
+├── outputs/
+│   └── tables/                 # Generated CSV data
+├── legacy/                     # Old/superseded implementations
+└── README.md
+```
 
-For questions about this implementation, refer to:
-1. Code comments in each file
-2. Flowchart_Reference.md for algorithm details
-3. Discussion guidelines printed by each script
+## Quick Start
 
----
+```bash
+# Run the Newton-Raphson solver
+python E21291_LoadFlow.py
 
-**License:** MIT (for educational purposes)
+# Generate comparison plots (Task 2)
+python scripts/produce_task2_plots.py
 
+# Run sensitivity analysis (Task 3)
+python scripts/produce_task3_remediation.py
+
+# Generate flowchart
+python scripts/generate_flowchart.py
+```
+
+## Results
+
+- **Convergence:** 4 iterations (tolerance = 1×10⁻⁴ pu)
+- **Validation:** Voltage magnitudes match PSS/E to 4 decimal places
+- **Weakest Bus:** Bus 5 (lowest voltage, highest ∂V/∂Q sensitivity)

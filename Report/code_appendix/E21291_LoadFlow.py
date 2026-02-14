@@ -23,8 +23,6 @@ def get_ieee_9_bus_data():
     """
     Returns IEEE 9-Bus system data.
     
-    Author: Perera J.D.T (E/21/291)
-    
     Returns:
     --------
     num_buses : int
@@ -80,8 +78,6 @@ def get_ieee_9_bus_data():
 def build_y_bus(num_buses, branch_data):
     """
     Constructs the Y-bus admittance matrix from branch data.
-    
-    Author: Perera J.D.T (E/21/291)
     """
     Y_bus = np.zeros((num_buses, num_buses), dtype=complex)
     
@@ -109,8 +105,6 @@ def newton_raphson(Y_bus, P_specified, Q_specified, V_init, bus_types,
                    max_iter=100, tol=1e-4, verbose=True):
     """
     Solves power flow equations using Full Newton-Raphson method.
-    
-    Author: Perera J.D.T (E/21/291)
     """
     num_buses = len(Y_bus)
     V = np.array(V_init, copy=True)
@@ -126,7 +120,6 @@ def newton_raphson(Y_bus, P_specified, Q_specified, V_init, bus_types,
         print("\n" + "="*80)
         print("STARTING NEWTON-RAPHSON LOAD FLOW ANALYSIS")
         print("="*80)
-        print(f"Student ID: E/21/291")
     
     for iteration in range(max_iter):
         if verbose:
@@ -165,12 +158,18 @@ def newton_raphson(Y_bus, P_specified, Q_specified, V_init, bus_types,
         n_non_slack = len(non_slack_buses)
         n_pq = len(pq_buses)
         
+        # --- Jacobian Sub-matrices ---
+        # J1 (∂P/∂δ): Coupling between active power and voltage angles
+        # J2 (∂P/∂|V|): Coupling between active power and voltage magnitudes
+        # J3 (∂Q/∂δ): Coupling between reactive power and voltage angles
+        # J4 (∂Q/∂|V|): Coupling between reactive power and voltage magnitudes
+        #   J4 diagonal ≈ dQ/d|V|, its inverse gives voltage sensitivity dV/dQ
         J1 = np.zeros((n_non_slack, n_non_slack))
         J2 = np.zeros((n_non_slack, n_pq))
         J3 = np.zeros((n_pq, n_non_slack))
         J4 = np.zeros((n_pq, n_pq))
         
-        # J1 and J3
+        # J1: ∂P/∂δ — dominant coupling (P-δ) in transmission systems
         for r, i in enumerate(non_slack_buses):
             for c, k in enumerate(non_slack_buses):
                 if i == k:
@@ -180,6 +179,7 @@ def newton_raphson(Y_bus, P_specified, Q_specified, V_init, bus_types,
                     delta_ik = np.angle(V[i]) - np.angle(V[k])
                     J1[r, c] = np.abs(V[i] * V[k]) * (np.real(y_ik) * np.sin(delta_ik) - np.imag(y_ik) * np.cos(delta_ik))
         
+        # J3: ∂Q/∂δ — weak coupling (neglected in FDLF)
         for r, i in enumerate(pq_buses):
             for c, k in enumerate(non_slack_buses):
                 if i == k:
@@ -189,7 +189,7 @@ def newton_raphson(Y_bus, P_specified, Q_specified, V_init, bus_types,
                     delta_ik = np.angle(V[i]) - np.angle(V[k])
                     J3[r, c] = -np.abs(V[i] * V[k]) * (np.real(y_ik) * np.cos(delta_ik) + np.imag(y_ik) * np.sin(delta_ik))
         
-        # J2 and J4
+        # J2: ∂P/∂|V| — weak coupling (neglected in FDLF)
         for r, i in enumerate(non_slack_buses):
             for c, k in enumerate(pq_buses):
                 if i == k:
@@ -199,6 +199,7 @@ def newton_raphson(Y_bus, P_specified, Q_specified, V_init, bus_types,
                     delta_ik = np.angle(V[i]) - np.angle(V[k])
                     J2[r, c] = np.abs(V[i]) * (np.real(y_ik) * np.cos(delta_ik) + np.imag(y_ik) * np.sin(delta_ik))
         
+        # J4: ∂Q/∂|V| — dominant coupling (Q-V); diagonal used for sensitivity
         for r, i in enumerate(pq_buses):
             for c, k in enumerate(pq_buses):
                 if i == k:
@@ -228,8 +229,6 @@ def newton_raphson(Y_bus, P_specified, Q_specified, V_init, bus_types,
 def calculate_line_flows(V, branch_data):
     """
     Calculates power flows and losses.
-    
-    Author: Perera J.D.T (E/21/291)
     """
     line_flows = []
     total_loss_P = 0
@@ -267,8 +266,6 @@ def calculate_line_flows(V, branch_data):
 def print_results(V, P_calc, Q_calc, line_flows, total_loss_P, total_loss_Q, num_buses):
     """
     Prints results to console.
-    
-    Author: Perera J.D.T (E/21/291)
     """
     print("\n" + "="*80)
     print("FINAL RESULTS - BUS DATA")
@@ -296,8 +293,6 @@ def print_results(V, P_calc, Q_calc, line_flows, total_loss_P, total_loss_Q, num
 def save_results_to_csv(V, P_calc, Q_calc, line_flows, total_loss_P, total_loss_Q, num_buses):
     """
     Saves results to CSV (for reporting graphs).
-    
-    Author: Perera J.D.T (E/21/291)
     """
     if not os.path.exists('outputs/tables'):
         os.makedirs('outputs/tables')

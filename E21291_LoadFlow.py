@@ -158,12 +158,18 @@ def newton_raphson(Y_bus, P_specified, Q_specified, V_init, bus_types,
         n_non_slack = len(non_slack_buses)
         n_pq = len(pq_buses)
         
+        # --- Jacobian Sub-matrices ---
+        # J1 (∂P/∂δ): Coupling between active power and voltage angles
+        # J2 (∂P/∂|V|): Coupling between active power and voltage magnitudes
+        # J3 (∂Q/∂δ): Coupling between reactive power and voltage angles
+        # J4 (∂Q/∂|V|): Coupling between reactive power and voltage magnitudes
+        #   J4 diagonal ≈ dQ/d|V|, its inverse gives voltage sensitivity dV/dQ
         J1 = np.zeros((n_non_slack, n_non_slack))
         J2 = np.zeros((n_non_slack, n_pq))
         J3 = np.zeros((n_pq, n_non_slack))
         J4 = np.zeros((n_pq, n_pq))
         
-        # J1 and J3
+        # J1: ∂P/∂δ — dominant coupling (P-δ) in transmission systems
         for r, i in enumerate(non_slack_buses):
             for c, k in enumerate(non_slack_buses):
                 if i == k:
@@ -173,6 +179,7 @@ def newton_raphson(Y_bus, P_specified, Q_specified, V_init, bus_types,
                     delta_ik = np.angle(V[i]) - np.angle(V[k])
                     J1[r, c] = np.abs(V[i] * V[k]) * (np.real(y_ik) * np.sin(delta_ik) - np.imag(y_ik) * np.cos(delta_ik))
         
+        # J3: ∂Q/∂δ — weak coupling (neglected in FDLF)
         for r, i in enumerate(pq_buses):
             for c, k in enumerate(non_slack_buses):
                 if i == k:
@@ -182,7 +189,7 @@ def newton_raphson(Y_bus, P_specified, Q_specified, V_init, bus_types,
                     delta_ik = np.angle(V[i]) - np.angle(V[k])
                     J3[r, c] = -np.abs(V[i] * V[k]) * (np.real(y_ik) * np.cos(delta_ik) + np.imag(y_ik) * np.sin(delta_ik))
         
-        # J2 and J4
+        # J2: ∂P/∂|V| — weak coupling (neglected in FDLF)
         for r, i in enumerate(non_slack_buses):
             for c, k in enumerate(pq_buses):
                 if i == k:
@@ -192,6 +199,7 @@ def newton_raphson(Y_bus, P_specified, Q_specified, V_init, bus_types,
                     delta_ik = np.angle(V[i]) - np.angle(V[k])
                     J2[r, c] = np.abs(V[i]) * (np.real(y_ik) * np.cos(delta_ik) + np.imag(y_ik) * np.sin(delta_ik))
         
+        # J4: ∂Q/∂|V| — dominant coupling (Q-V); diagonal used for sensitivity
         for r, i in enumerate(pq_buses):
             for c, k in enumerate(pq_buses):
                 if i == k:
