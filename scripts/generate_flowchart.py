@@ -1,209 +1,124 @@
 import matplotlib.pyplot as plt
-import matplotlib.patches as mpatches
+import matplotlib.patches as patches
 
-def generate_flowchart_v4_fix():
-    # A4 Portrait: 8.3 x 11.7 inches
-    FIG_W, FIG_H = 8.3, 11.7
-    fig, ax = plt.subplots(figsize=(FIG_W, FIG_H))
-    ax.set_aspect('equal')
+def draw_flowchart():
+    # Create figure with dark background to match user aesthetic preferences potentially, 
+    # but standard white is better for printing/reports. User didn't specify dark mode for this, 
+    # but usually flowcharts are on white. I will use white background.
+    fig, ax = plt.subplots(figsize=(12, 16))
+    ax.set_xlim(0, 10)
+    ax.set_ylim(0, 12)
     ax.axis('off')
     
-    # ─── Style Constants ──────────────────────────────────────────────
-    BOX_W = 4.0   
-    BOX_H = 1.0
-    DIA_W = 2.5
-    DIA_H = 1.2
-    
-    Y_START = 12.5
-    DY = 1.25  
-    
-    C_START = '#C8E6C9'  # Green 100
-    C_PROC  = '#BBDEFB'  # Blue 100
-    C_DEC   = '#FFF9C4'  # Yellow 100
-    C_IO    = '#E1BEE7'  # Purple 100
-    C_END   = '#FFCDD2'  # Red 100
-    EDGE    = '#37474F'
-    
-    def get_text_style(size=9, weight='normal', style='normal', color='black'):
-        return {'fontsize': size, 'fontweight': weight, 'fontstyle': style, 'color': color, 'ha': 'center', 'va': 'center'}
+    # Common box styles
+    box_props = dict(boxstyle='round,pad=0.5', facecolor='#e1f5fe', edgecolor='#01579b', linewidth=1.5)
+    decision_props = dict(boxstyle='round4,pad=0.5', facecolor='#fff9c4', edgecolor='#fbc02d', linewidth=1.5)
+    start_end_props = dict(boxstyle='round4,pad=0.5', facecolor='#ffccbc', edgecolor='#ff5722', linewidth=1.5)
+    io_props = dict(boxstyle='round,pad=0.5', facecolor='#e0f2f1', edgecolor='#00695c', linewidth=1.5) # Using round for IO but different color
 
-    # ─── Helper Functions ─────────────────────────────────────────────
-    def draw_box(x, y, title, math=None, line_ref=None, w=BOX_W, h=BOX_H, fc='#FFFFFF', shape='rect'):
-        if shape == 'oval':
-            patch = mpatches.BoxStyle.Round(pad=0.3)
-            p = mpatches.FancyBboxPatch((x-w/2, y-h/2), w, h, boxstyle=patch, fc=fc, ec=EDGE, lw=1.2)
-        elif shape == 'rect':
-            patch = mpatches.BoxStyle.Round(pad=0.1, rounding_size=0.15)
-            # Increase height for multi-line math
-            if math and '\n' in math: h += 0.4
-            elif math: h += 0.2
-            p = mpatches.FancyBboxPatch((x-w/2, y-h/2), w, h, boxstyle=patch, fc=fc, ec=EDGE, lw=1.2)
-        elif shape == 'parallelogram':
-            skew = 0.4
-            pts = [[x-w/2+skew, y-h/2], [x+w/2+skew, y-h/2], [x+w/2-skew, y+h/2], [x-w/2-skew, y+h/2]]
-            p = plt.Polygon(pts, fc=fc, ec=EDGE, lw=1.2)
-        elif shape == 'diamond':
-            pts = [[x, y-h/2], [x+w/2, y], [x, y+h/2], [x-w/2, y]]
-            p = plt.Polygon(pts, fc=fc, ec=EDGE, lw=1.2)
+    def draw_node(x, y, text, lines="", equations="", style=box_props, width=None):
+        content = f"{text}"
+        if lines:
+            content += f"\n(Lines: {lines})"
+        if equations:
+            content += f"\n{equations}"
         
-        ax.add_patch(p)
+        # We rely on bbox to size it, so we just place text
+        t = ax.text(x, y, content, ha='center', va='center', bbox=style, fontsize=10, family='sans-serif', wrap=True)
+        return t
+
+    # --- Draw Nodes ---
+    
+    # 1. Start (Top, Center)
+    draw_node(5, 11.5, "Start", "", "", style=start_end_props)
+    
+    # 2. Input Data
+    draw_node(5, 10.3, "Input System Data", "22-75", r"Returns: $N_{bus}, Types, P_{spec}, Q_{spec}, V_{init}, BranchData$", style=io_props)
+    
+    # 3. Build Y-Bus
+    draw_node(5, 9.1, "Construction of Y-Bus Matrix", "78-98", r"$Y_{ii} = \sum y_{ik} + y_{sh}$" + "\n" + r"$Y_{ij} = -y_{ij}$", style=box_props)
+    
+    # 4. Initialize NR
+    draw_node(5, 7.9, "Initialize Newton-Raphson", "104-122", r"Set $V = V_{init}$" + "\n" + r"Iteration $k=0$", style=box_props)
+    
+    # 5. Mismatch Calculation (Loop Start Point)
+    draw_node(5, 6.7, "Calculate Power Mismatches", "128-133", r"$\Delta P = P_{spec} - P_{calc}(V, \delta)$" + "\n" + r"$\Delta Q = Q_{spec} - Q_{calc}(V, \delta)$", style=box_props)
+    
+    # 6. Convergence Check
+    draw_node(5, 5.2, "Check Convergence", "136-156", r"Is $\max(|\Delta P|, |\Delta Q|) < \epsilon$?", style=decision_props)
+    
+    # 7. Jacobian (If No) - Placed to the right
+    draw_node(8.5, 5.2, "Compute Jacobian Matrix", "167-212", r"$J = \begin{bmatrix} \frac{\partial P}{\partial \delta} & \frac{\partial P}{\partial |V|} \\ \frac{\partial Q}{\partial \delta} & \frac{\partial Q}{\partial |V|} \end{bmatrix}$", style=box_props)
+    
+    # 8. Update State (If No)
+    draw_node(8.5, 3.8, "Solve & Update", "213-224", r"$\begin{bmatrix}\Delta \delta \\ \Delta |V|\end{bmatrix} = J^{-1} \begin{bmatrix}\Delta P \\ \Delta Q\end{bmatrix}$" + "\n" + r"$V^{k+1} = V^k + \Delta V$", style=box_props)
+    
+    # 9. Calc Flows (If Yes)
+    draw_node(5, 3.2, "Calculate Line Flows & Losses", "229-263", r"$I_{ij} = (V_i - V_j)y_{ij} + V_i y_{sh}$" + "\n" + r"$S_{ij} = V_i I_{ij}^*$", style=box_props)
+    
+    # 10. Output Results
+    draw_node(5, 1.8, "Output Results", "266-316", "Print Tables, Save CSV", style=io_props)
+    
+    # 11. End
+    draw_node(5, 0.8, "End", "336", "", style=start_end_props)
+    
+    # --- Draw Connections (Arrows) ---
+    arrow_props = dict(arrowstyle='->', lw=1.5, color='black')
+    
+    def connect(xy1, xy2):
+        ax.annotate('', xy=xy2, xytext=xy1, arrowprops=arrow_props)
         
-        # Text placement
-        if math and line_ref:
-            ax.text(x, y+0.25, title, **get_text_style(9, 'bold'))
-            ax.text(x, y-0.05, math, **get_text_style(8.5, color='#004D40')) 
-            ax.text(x, y-0.40, line_ref, **get_text_style(7, 'normal', 'normal', '#424242'))
-        elif math:
-            ax.text(x, y+0.15, title, **get_text_style(9, 'bold'))
-            ax.text(x, y-0.20, math, **get_text_style(8.5, color='#004D40'))
-        elif line_ref:
-            ax.text(x, y+0.12, title, **get_text_style(9, 'bold'))
-            ax.text(x, y-0.18, line_ref, **get_text_style(7.5, 'normal', 'normal', '#424242'))
-        else:
-            ax.text(x, y, title, **get_text_style(9, 'bold'))
-            
-        return h 
+    # Start -> Input
+    connect((5, 11.2), (5, 10.6))
+    # Input -> YBus
+    connect((5, 10.0), (5, 9.5))
+    # YBus -> Init
+    connect((5, 8.7), (5, 8.3))
+    # Init -> Mismatch
+    connect((5, 7.5), (5, 7.1))
+    # Mismatch -> Convergence
+    connect((5, 6.3), (5, 5.8))
+    
+    # Convergence -> Line Flows (YES)
+    ax.annotate('Yes', xy=(5, 3.7), xytext=(5, 4.6), arrowprops=arrow_props, ha='center', fontsize=10, bbox=dict(fc='white', ec='none'))
+    
+    # Convergence -> Jacobian (NO)
+    ax.annotate('No', xy=(7.4, 5.2), xytext=(6.2, 5.2), arrowprops=arrow_props, va='center', fontsize=10, bbox=dict(fc='white', ec='none'))
+    
+    # Jacobian -> Update
+    connect((8.5, 4.7), (8.5, 4.3))
+    
+    # Update -> Mismatch (Loop Back)
+    # Draw path: Update(8.5, 3.4) -> Down a bit? No, Up is better or around.
+    # Let's go from bottom of Update to right, up, and back to Mismatch top?
+    # Or just simply: Update(8.5, 3.3) -> line to (8.5, 7.3) -> (5, 7.3) -> Mismatch(5, 7.1)
+    # Wait, Mismatch input is at 7.1 (top of box at 6.7 + pad).
+    # Let's draw a line.
+    
+    # Path coordinates
+    path_update_mismatch_x = [8.5, 8.5, 5, 5]
+    path_update_mismatch_y = [3.3, 7.3, 7.3, 7.1] # 3.3 is below Update box? 
+    # Update box center is 3.8. Height approx 1.0. Bottom approx 3.3.
+    # Actually let's go from Top of Update to Top of Mismatch? No, Update happens, then we go back to mismatch.
+    # So output of Update -> Mismatch.
+    # Update center 3.8. Let's exit from Right or Bottom?
+    # Let's exit from Right of Update (9.5, 3.8) -> Up to (9.5, 7.3) -> Left to (5, 7.3) -> Down to (5, 7.1)
+    
+    ax.plot([9.6, 9.6, 5, 5], [3.8, 7.3, 7.3, 7.1], zorder=0, **dict(lw=1.5, color='black'))
+    # Arrow head at the end
+    ax.annotate('', xy=(5, 7.0), xytext=(5, 7.2), arrowprops=arrow_props)
+    
+    # Line Flows -> Output
+    connect((5, 2.7), (5, 2.1))
+    
+    # Output -> End
+    connect((5, 1.5), (5, 1.0))
 
-    def draw_arrow(x1, y1, x2, y2, text=None):
-        ax.annotate('', xy=(x2, y2), xytext=(x1, y1),
-                    arrowprops=dict(arrowstyle='->', color=EDGE, lw=1.2, mutation_scale=12))
-        if text:
-            mid_x = (x1+x2)/2
-            mid_y = (y1+y2)/2
-            t = ax.text(mid_x, mid_y, text, fontsize=8, fontweight='bold', color='#B71C1C', ha='center', va='center')
-            t.set_bbox(dict(facecolor='white', alpha=0.8, edgecolor='none', pad=1))
-
-    # ─── MAIN COLUMN (X=0) ──────────────────────────────────────────────
-    
-    y = Y_START
-    
-    # 1. Start
-    draw_box(0, y, "START", w=2.0, h=0.8, fc=C_START, shape='oval')
-    prev_y = y - 0.4
-    y -= DY
-
-    # 2. Read Data
-    draw_box(0, y, "Read Bus & Branch Data", line_ref="(L22-75)", fc=C_IO, shape='parallelogram')
-    draw_arrow(0, prev_y, 0, y + BOX_H/2)
-    prev_y = y - BOX_H/2
-    y -= DY
-
-    # 3. Y-Bus
-    # Replaced \sum with \Sigma if needed, but \sum works. Removed \quad.
-    h_used = draw_box(0, y, "Build Y-Bus Matrix", 
-                     math=r"$Y_{ij} = -y_{ij}$" "\n" r"$Y_{ii} = \sum y_{ik} + y_{shunt}$", 
-                     line_ref="(L78-98)", fc=C_PROC)
-    draw_arrow(0, prev_y, 0, y + h_used/2)
-    prev_y = y - h_used/2
-    y -= DY + 0.2
-    
-    # 4. Init
-    h_used = draw_box(0, y, "Initialize Voltages", 
-             math=r"$V_i^{(0)} = 1.0 \angle 0^\circ$ (Flat Start)", 
-             line_ref="(L110-116)", fc=C_PROC)
-    draw_arrow(0, prev_y, 0, y + h_used/2)
-    prev_y = y - h_used/2
-    y -= DY
-    
-    # 5. Calc P,Q
-    y_loop_top = y
-    # Used \left( \right) which is supported
-    h_used = draw_box(0, y, "Compute Power Injection", 
-                     math=r"$S_i = V_i \left(\sum Y_{ik} V_k\right)^*$", 
-                     line_ref="(L128-130)", fc=C_PROC)
-    draw_arrow(0, prev_y, 0, y + h_used/2)
-    prev_y = y - h_used/2
-    y -= DY + 0.2
-    
-    # 6. Mismatches
-    h_used = draw_box(0, y, "Calculate Mismatches", 
-                     math=r"$\Delta P_i = P_i^{spec} - P_i^{calc}$", 
-                     line_ref="(L132-136)", fc=C_PROC)
-    draw_arrow(0, prev_y, 0, y + h_used/2)
-    prev_y = y - h_used/2
-    y -= 1.6 
-    
-    # 7. Convergence Check
-    y_diamond = y
-    draw_box(0, y, "Converged?", 
-             math=r"$\max|\Delta| < \epsilon$", 
-             line_ref="(L151)", w=DIA_W, h=DIA_H, fc=C_DEC, shape='diamond')
-    draw_arrow(0, prev_y, 0, y + DIA_H/2)
-    
-    y -= 1.6
-    draw_arrow(0, y_diamond - DIA_H/2, 0, y + BOX_H/2 + 0.4, text="NO")
-    
-    # 8. Jacobian
-    # Removed bmatrix. Using simplified notation.
-    # Using \partial
-    math_jac = r"$J_1=\partial P/\partial\delta, J_2=\partial P/\partial|V|$" "\n" r"$J_3=\partial Q/\partial\delta, J_4=\partial Q/\partial|V|$"
-    h_used = draw_box(0, y, "Build Jacobian [J]", 
-                     math=math_jac, 
-                     line_ref="(L161-210)", fc=C_PROC)
-    prev_y = y - h_used/2
-    y -= DY + 0.4
-    
-    # 9. Solve
-    # Simplified vector notation
-    h_used = draw_box(0, y, "Solve System", 
-                     math=r"$[J] \cdot [\Delta \delta, \Delta |V|]^T = [\Delta M]$", 
-                     line_ref="(L212-213)", fc=C_PROC)
-    draw_arrow(0, prev_y, 0, y + h_used/2)
-    prev_y = y - h_used/2
-    y -= DY + 0.2
-    
-    # 10. Update
-    y_update = y
-    h_used = draw_box(0, y, "Update State", 
-                     math=r"$\delta^{(k+1)} = \delta^{(k)} + \Delta \delta$" "\n" r"$|V|^{(k+1)} = |V|^{(k)} + \Delta |V|$", 
-                     line_ref="(L218-224)", fc=C_PROC)
-    draw_arrow(0, prev_y, 0, y + h_used/2)
-    
-    # ─── LOOP BACK ────────────────────────────────────────────────────
-    
-    loop_x = -3.5
-    y_update_edge = y_update
-    
-    ax.plot([0 - BOX_W/2, loop_x], [y_update_edge, y_update_edge], color=EDGE, lw=1.2)
-    ax.plot([loop_x, loop_x], [y_update_edge, y_loop_top], color=EDGE, lw=1.2)
-    draw_arrow(loop_x, y_loop_top, 0 - BOX_W/2, y_loop_top)
-    
-    ax.text(loop_x - 0.2, (y_update + y_loop_top)/2, "Iterate (k = k+1)", 
-            rotation=90, va='center', ha='right', fontsize=8, fontweight='bold', color='#B71C1C')
-
-    # ─── EXIT BRANCH ──────────────────────────────────────────────────
-    
-    exit_x = 3.5
-    
-    draw_arrow(0 + DIA_W/2, y_diamond, exit_x - BOX_W/2 - 0.2, y_diamond, text="YES")
-    
-    # 11. Line Flows
-    draw_box(exit_x, y_diamond, "Calc Line Flows", 
-             math=r"$S_{ij} = V_i (V_i^* - V_j^*) Y_{ij}^*$", 
-             line_ref="(L229-263)", w=BOX_W, h=BOX_H+0.4, fc=C_PROC)
-    prev_y_exit = y_diamond - (BOX_H+0.4)/2
-    y_exit = y_diamond - DY - 0.8
-    
-    # 12. Print Results
-    draw_box(exit_x, y_exit, "Save & Print Results", 
-             line_ref="(L266-315)", fc=C_IO, shape='parallelogram')
-    draw_arrow(exit_x, prev_y_exit, exit_x, y_exit + BOX_H/2) 
-    prev_y_exit = y_exit - BOX_H/2
-    y_exit -= DY
-    
-    # 13. End
-    draw_box(exit_x, y_exit, "END", w=2.0, h=0.8, fc=C_END, shape='oval')
-    draw_arrow(exit_x, prev_y_exit, exit_x, y_exit + 0.4) 
-    
-    
-    # ─── FINAL ────────────────────────────────────────────────────────
-    
-    ax.set_xlim(-4.8, 6.2) 
-    ax.set_ylim(-1, 13)
-    
+    # Title
+    plt.title("Flowchart: Full Newton-Raphson Load Flow (E21291_LoadFlow.py)", fontsize=16, fontweight='bold', pad=20)
     plt.tight_layout()
-    plt.savefig('Report/flowchart.png', dpi=300, bbox_inches='tight')
-    print("Flowchart generated: Report/flowchart.png (V4 Fix)")
+    plt.savefig('Report/flowchart.png')
+    print("Flowchart saved successfully to 'Report/flowchart.png'")
 
 if __name__ == "__main__":
-    generate_flowchart_v4_fix()
+    draw_flowchart()
