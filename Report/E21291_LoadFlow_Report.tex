@@ -108,7 +108,31 @@ The notation used throughout this report is defined here for clarity:
 \end{itemize}
 
 % ============================================================
-% SECTION 2: MATHEMATICAL FORMULATION
+% SECTION 2: IEEE 9-BUS SYSTEM DESCRIPTION
+% ============================================================
+\newpage
+\section{The IEEE 9-Bus Test System}
+\label{sec:system_description}
+
+The IEEE 9-bus test system, originally published by Anderson and Fouad~\cite{anderson}, serves as the case study for this project. It represents a simple approximation of the Western System Coordinating Council (WSCC) system with 3 synchronous machines, 9 buses, and 6 transmission lines.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.85\textwidth]{9bus.jpg}
+    \caption{Single-line diagram of the IEEE 9-bus test system (Source: Anderson \& Fouad~\cite{anderson}).}
+    \label{fig:ieee9bus}
+\end{figure}
+
+The system features:
+\begin{itemize}
+    \item \textbf{Bus 1 (Slack):} Functions as the reference bus ($V = 1.04 \angle 0^{\circ}$).
+    \item \textbf{Buses 2 \& 3 (PV):} Generator buses controlling voltage magnitude ($1.025$ pu).
+    \item \textbf{Buses 4--9 (PQ):} Load buses. Buses 5, 6, and 8 have significant loads.
+    \item \textbf{Base MVA:} 100 MVA.
+\end{itemize}
+
+% ============================================================
+% SECTION 3: MATHEMATICAL FORMULATION
 % ============================================================
 \newpage
 \section{Mathematical Formulation}
@@ -430,7 +454,7 @@ Voltage Profile:
   Bus 9: 1.0324 ∠   1.9667°  (PQ)
 \end{lstlisting}
 
-Notably, Bus 5 exhibits the lowest voltage magnitude in the system (0.9956~pu), providing an early indication of potential vulnerability. This observation is explored further in Section~5.
+Notably, Bus 5 exhibits the lowest voltage magnitude in the system (0.9956~pu), providing an early indication of potential vulnerability. This observation is explored further in Section~\ref{sec:sensitivity}.
 
 \subsubsection{Line Flows and System Losses}
 
@@ -496,21 +520,56 @@ NR was also compared against Gauss-Seidel and Fast Decoupled methods (all execut
 
 \begin{table}[H]
 \centering
-\caption{Load Flow Method Comparison}
+\caption{Load Flow Method Comparison (PSS/E Results)}
 \label{tab:method_comparison}
-\begin{tabular}{l c c c}
+\begin{tabular}{l c c c c}
 \toprule
-\textbf{Method} & \textbf{Iterations} & \textbf{Convergence Rate} & \textbf{Robustness} \\
+\textbf{Method} & \textbf{Iterations} & \textbf{Final Max Mismatch} & \textbf{Convergence} & \textbf{Robustness} \\
 \midrule
-Gauss-Seidel (PSS/E) & 18 & Linear & Low \\
-Fast Decoupled (PSS/E) & 3 & Superlinear & Medium \\
-Newton-Raphson (PSS/E) & 3 & Quadratic & High \\
-\textbf{Newton-Raphson (Developed)} & \textbf{4} & \textbf{Quadratic} & \textbf{High} \\
+Gauss-Seidel & 18 & 0.20 MVA (Bus 7) & Linear & Low \\
+Fast Decoupled & 3 & 0.02 MVA (Bus 6) & Superlinear & Medium \\
+Newton-Raphson & 3 & 0.00 MVA (Bus 7) & Quadratic & High \\
+\textbf{Developed Solver} & \textbf{4} & \textbf{0.00 MVA} (0.3 $\mu$VA) & \textbf{Quadratic} & \textbf{High} \\
 \bottomrule
 \end{tabular}
 \end{table}
 
-The most striking result is Gauss-Seidel needing \textbf{18 iterations} compared to Newton-Raphson's \textbf{3--4}. This is the practical consequence of linear vs quadratic convergence. For larger systems, GS can become impractical, while NR remains fast. FDLF matched NR in speed here, but as noted in Section~2.5, it is less general.
+The most striking result is Gauss-Seidel needing \textbf{18 iterations} compared to Newton-Raphson's \textbf{3--4}, with a final mismatch that is significantly larger (0.20 MVA) than NR's negligible error. This highlights why NR is the industry standard. FDLF matched NR in speed here, but as noted in Section~\ref{sec:convergence_discussion}, it is less general.
+
+\subsection{PSS/E Output Logs}
+The raw output logs from the PSS/E simulation for the three methods are provided below for verification.
+
+\begin{lstlisting}[caption={PSS/E Gauss-Seidel Output}, label={lst:psse_gs}]
+ ITER DELTAV/TOL X-------- AT BUS ---------X  REAL(DELTAV)  IMAG(DELTAV)
+    1  1632.124       2 [            18.000]    0.2435E-01    0.1614E+00
+   ... (Intermediate iterations omitted) ...
+   18     0.871       7 [            230.00]   -0.8411E-04   -0.2273E-04
+
+ Reached tolerance in 18 iterations
+
+ Largest mismatch:     -0.00 MW     -0.20 Mvar      0.20 MVA at bus 7
+\end{lstlisting}
+
+\begin{lstlisting}[caption={PSS/E Newton-Raphson Output}, label={lst:psse_nr}]
+  ITER       DELTAP      BUS         DELTAQ      BUS
+   0         1.6300(        2   )    0.8614(        4   )
+   1         0.0986(        2   )    0.1761(        7   )
+   2         0.0008(        8   )    0.0020(        7   )
+   3         0.0000(        7   )    0.0000(        7   )
+
+ Reached tolerance in 3 iterations
+ Largest mismatch:      0.00 MW      0.00 Mvar      0.00 MVA at bus 7
+\end{lstlisting}
+
+\begin{lstlisting}[caption={PSS/E Fast Decoupled Output}, label={lst:psse_fd}]
+  ITER       DELTAP      BUS         DELTAQ      BUS
+   0.0       1.6300(        2   )    0.8614(        4   )
+   ...
+   3.0       0.0002(        6   )    0.0000(        6   )
+
+ Reached tolerance in 3 iterations
+ Largest mismatch:     -0.02 MW      0.00 Mvar      0.02 MVA at bus 6
+\end{lstlisting}
 
 \subsection{Voltage Profile Validation}
 A bus-by-bus comparison of voltage magnitudes and angles is presented in Table~\ref{tab:voltage_comparison}:
@@ -584,6 +643,7 @@ The plots below confirm the tabular agreement visually. They make it easy to see
 % ============================================================
 \newpage
 \section{Voltage Sensitivity Study}
+\label{sec:sensitivity}
 
 The load flow solution describes the system state under a specific loading condition. However, in practice, loads vary continuously. The more critical engineering question is: \textit{how sensitive are bus voltages to load perturbations?} And more specifically: \textit{which buses exhibit the greatest vulnerability?}
 

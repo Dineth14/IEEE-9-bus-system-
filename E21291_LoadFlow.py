@@ -316,7 +316,7 @@ def save_results_to_csv(V, P_calc, Q_calc, line_flows, total_loss_P, total_loss_
 
 if __name__ == "__main__":
     print("\n" + "="*80)
-    print("FULL NEWTON-RAPHSON LOAD FLOW PROGRAM (Single File Submission)")
+    print("FULL NEWTON-RAPHSON LOAD FLOW PROGRAM ")
     print("="*80)
     print(f"Student ID: E/21/291")
     print(f"Date: {datetime.now().strftime('%Y-%m-%d')}")
