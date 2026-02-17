@@ -2,7 +2,10 @@
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
-from E21291_LoadFlow import get_ieee_9_bus_data, build_y_bus, newton_raphson
+import sys
+import os
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+from src.E21291_LoadFlow import get_ieee_9_bus_data, build_y_bus, newton_raphson
 
 def run_sensitivity_remediation():
     print("Running Task 3 Remediation: Sensitivity Analysis")

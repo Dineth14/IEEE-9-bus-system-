@@ -2,8 +2,12 @@
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
+import os
 
 def generate_plots():
+    # Ensure output directory exists
+    os.makedirs('Report', exist_ok=True)
+
     # Data from PSS/E (Hardcoded from Report Table 4)
     # Buses 1 to 9
     psse_v = [1.0400, 1.0250, 1.0250, 1.0258, 0.9956, 1.0127, 1.0258, 1.0159, 1.0324]
