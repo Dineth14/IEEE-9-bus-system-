@@ -116,7 +116,7 @@ The notation used throughout this report is defined here for clarity:
 
 The IEEE 9-bus test system, originally published by Anderson and Fouad~\cite{anderson}, serves as the case study for this project. It represents a simple approximation of the Western System Coordinating Council (WSCC) system with 3 synchronous machines, 9 buses, and 6 transmission lines.
 
-\begin{figure}[H]
+\begin{figure}[htbp]
     \centering
     \includegraphics[width=0.85\textwidth]{9bus.png}
     \caption{Single-line diagram of the IEEE 9-bus test system (Source: Anderson \& Fouad~\cite{anderson}).}
@@ -190,7 +190,7 @@ J_3 & J_4
 \subsection{Jacobian Element Derivation}
 The analytical derivation of each of the four Jacobian sub-matrices is presented below. All derivatives follow from Equations~(\ref{eq:P_calc}) and~(\ref{eq:Q_calc}). The derivation follows the procedure in Saadat~\cite{saadat} (Chapter~6) and Grainger~\cite{grainger} (Chapter~9).
 
-\subsubsection{Sub-matrix $J_1$: $\partial P_i / \partial \delta_j$}
+\subsubsection{Sub-matrix \texorpdfstring{$J_1$: $\partial P_i / \partial \delta_j$}{J1: dPi/ddeltaj}}
 
 \textbf{Off-diagonal elements ($i \neq j$):}
 
@@ -211,7 +211,7 @@ When $i = j$, $\delta_i$ appears in every term with coefficient $-1$. Differenti
 \end{equation}
 The sign is positive because: $\partial/\partial\delta_i$ of $\cos(\theta_{ik} - \delta_i + \delta_k)$ gives $(-1)\times(-\sin(\cdot)) = +\sin(\cdot)$. The $k = i$ term vanishes because the diagonal Y-bus element $Y_{ii}$ appears in the expression as $|V_i|^2 |Y_{ii}| \cos(\theta_{ii} - \delta_i + \delta_i) = |V_i|^2 |Y_{ii}| \cos(\theta_{ii})$, which is independent of $\delta_i$. Therefore $\partial/\partial\delta_i \left[ |V_i|^2 |Y_{ii}| \cos(\theta_{ii}) \right] = 0$.
 
-\subsubsection{Sub-matrix $J_2$: $\partial P_i / \partial |V_j|$}
+\subsubsection{Sub-matrix \texorpdfstring{$J_2$: $\partial P_i / \partial |V_j|$}{J2: dPi/d|Vj|}}
 
 \textbf{Off-diagonal elements ($i \neq j$):}
 
@@ -228,7 +228,7 @@ $|V_i|$ appears in every term. For the self-term ($k = i$), the product is $|V_i
 \label{eq:J2_diag}
 \end{equation}
 
-\subsubsection{Sub-matrix $J_3$: $\partial Q_i / \partial \delta_j$}
+\subsubsection{Sub-matrix \texorpdfstring{$J_3$: $\partial Q_i / \partial \delta_j$}{J3: dQi/ddeltaj}}
 
 \textbf{Off-diagonal elements ($i \neq j$):}
 
@@ -246,7 +246,7 @@ Applying the same chain rule logic as $J_1$:
 \end{equation}
 The $k = i$ term drops out because $\sin(\theta_{ii})$ is constant with respect to $\delta_i$.
 
-\subsubsection{Sub-matrix $J_4$: $\partial Q_i / \partial |V_j|$}
+\subsubsection{Sub-matrix \texorpdfstring{$J_4$: $\partial Q_i / \partial |V_j|$}{J4: dQi/d|Vj|}}
 
 \textbf{Off-diagonal elements ($i \neq j$):}
 \begin{equation}
@@ -345,9 +345,9 @@ Consequently, the Jacobian for the 9-bus system is a $14 \times 14$ matrix (8 $\
 \end{enumerate}
 
 \subsection{Flowchart}
-\begin{figure}[H]
+\begin{figure}[htbp]
     \centering
-    \includegraphics[width=0.95\textwidth]{flowchart.png}
+    \includegraphics[height=0.85\textheight, keepaspectratio]{flowchart.png}
     \caption{Flowchart of the Newton-Raphson load flow program. The outer loop repeats until the mismatch falls below $10^{-4}$~pu or the iteration count exceeds 100.}
     \label{fig:flowchart}
 \end{figure}
@@ -378,7 +378,7 @@ The program reported an initial maximum mismatch of 1.63~pu, occurring at Bus 7 
 \subsection{Convergence History}
 The program converged in \textbf{4~iterations}. The mismatch progression was:
 
-\begin{table}[H]
+\begin{table}[htbp]
 \centering
 \caption{Iteration-by-Iteration Convergence}
 \label{tab:conv_history}
@@ -399,7 +399,7 @@ The quadratic convergence characteristic is clearly evident: from Iteration~2 to
 \subsection{Second Iteration Intermediate Results}
 As required, the intermediate state after Iteration~2 is presented below. At this point, the voltages have moved substantially from the flat start but have not yet converged (max mismatch = 0.0986~pu at Bus~2 for $\Delta P$, 0.1761~pu at Bus~7 for $\Delta Q$).
 
-\begin{table}[H]
+\begin{table}[htbp]
 \centering
 \caption{Bus Voltages After Iteration 2}
 \label{tab:iter2_results}
@@ -420,7 +420,7 @@ As required, the intermediate state after Iteration~2 is presented below. At thi
 \end{tabular}
 \end{table}
 
-\begin{table}[H]
+\begin{table}[htbp]
 \centering
 \caption{Mismatch Summary at Iteration 2 (PSS/E Reference)}
 \label{tab:iter2_mismatch}
@@ -458,7 +458,7 @@ Notably, Bus 5 exhibits the lowest voltage magnitude in the system (0.9956~pu), 
 
 \subsubsection{Line Flows and System Losses}
 
-\begin{table}[H]
+\begin{table}[htbp]
 \centering
 \caption{Line Flows and Losses at Convergence}
 \label{tab:line_flows}
@@ -497,7 +497,7 @@ The purpose of validation is to establish whether the developed solver produces 
 
 \subsection{Convergence Comparison}
 
-\begin{table}[H]
+\begin{table}[htbp]
 \centering
 \caption{Convergence Characteristics: Developed Solver vs PSS/E}
 \label{tab:convergence}
@@ -518,10 +518,11 @@ The developed solver required one additional iteration compared to PSS/E. This i
 \subsection{Method Comparison}
 NR was also compared against Gauss-Seidel and Fast Decoupled methods (all executed in PSS/E on the same system):
 
-\begin{table}[H]
+\begin{table}[htbp]
 \centering
 \caption{Load Flow Method Comparison (PSS/E Results)}
 \label{tab:method_comparison}
+\resizebox{\textwidth}{!}{
 \begin{tabular}{l c c c c}
 \toprule
 \textbf{Method} & \textbf{Iterations} & \textbf{Final Max Mismatch} & \textbf{Convergence} & \textbf{Robustness} \\
@@ -532,6 +533,7 @@ Newton-Raphson & 3 & 0.00 MVA (Bus 7) & Quadratic & High \\
 \textbf{Developed Solver} & \textbf{4} & \textbf{0.00 MVA} (0.3 $\mu$VA) & \textbf{Quadratic} & \textbf{High} \\
 \bottomrule
 \end{tabular}
+}
 \end{table}
 
 The most striking result is Gauss-Seidel needing \textbf{18 iterations} compared to Newton-Raphson's \textbf{3--4}, with a final mismatch that is significantly larger (0.20 MVA) than NR's negligible error. This highlights why NR is the industry standard. FDLF matched NR in speed here, but as noted in Section~\ref{sec:convergence_discussion}, it is less general.
@@ -574,7 +576,7 @@ The raw output logs from the PSS/E simulation for the three methods are provided
 \subsection{Voltage Profile Validation}
 A bus-by-bus comparison of voltage magnitudes and angles is presented in Table~\ref{tab:voltage_comparison}:
 
-\begin{table}[H]
+\begin{table}[htbp]
 \centering
 \caption{Bus Voltage Comparison: PSS/E vs Developed Solver}
 \label{tab:voltage_comparison}
@@ -601,10 +603,11 @@ Every single voltage magnitude matches to four decimal places. The angles differ
 \subsection{Statistical Error Metrics}
 To provide a rigorous quantitative assessment beyond visual inspection of individual values, three standard error metrics were computed across all 9 buses:
 
-\begin{table}[H]
+\begin{table}[htbp]
 \centering
 \caption{Quantified Error Analysis (Python vs PSS/E)}
 \label{tab:error_metrics}
+\resizebox{\textwidth}{!}{
 \begin{tabular}{l c c}
 \toprule
 \textbf{Metric} & \textbf{Voltage Magnitude (pu)} & \textbf{Voltage Angle (deg)} \\
@@ -614,6 +617,7 @@ Max Percentage Error $\frac{|V_{NR} - V_{PSSE}|}{V_{PSSE}} \times 100$ & 0.00\% 
 Root Mean Square Error (RMSE) & \textbf{0.0000} & \textbf{0.0029} \\
 \bottomrule
 \end{tabular}
+}
 \end{table}
 
 An RMSE of 0.0000~pu for voltage magnitudes confirms that the developed solver produces results numerically identical to PSS/E. The angle RMSE of $0.0029^{\circ}$ is well within standard engineering tolerances (typical protective relay settings operate on margins of $1^{\circ}$--$5^{\circ}$). The residual discrepancies are attributed to PSS/E rounding its displayed output to 2 decimal places on the angles, rather than to differences in the underlying computed solution.
@@ -624,14 +628,14 @@ As a final cross-check, the developed program computed total active power loss o
 \subsection{Visual Verification}
 The plots below confirm the tabular agreement visually. They make it easy to see that both tools produce the same voltage profile shape, and that Bus~5's low voltage is captured by both.
 
-\begin{figure}[H]
+\begin{figure}[htbp]
     \centering
-    \includegraphics[width=0.85\textwidth]{task2_voltage_mag_comparison.png}
+    \includegraphics[width=0.80\textwidth]{task2_voltage_mag_comparison.png}
     \caption{Voltage magnitude comparison. The bars overlap almost perfectly at every bus. Bus~5 shows the characteristic voltage dip that both solvers capture identically.}
     \label{fig:v_mag_compare}
 \end{figure}
 
-\begin{figure}[H]
+\begin{figure}[htbp]
     \centering
     \includegraphics[width=0.85\textwidth]{task2_voltage_angle_comparison.png}
     \caption{Voltage angle comparison. The angular profile follows the expected pattern: generator buses have positive angles (exporting power), while load buses have negative angles (importing power).}
@@ -661,10 +665,11 @@ To address these questions, a parametric study was conducted in which active and
 \subsection{Results}
 
 \subsubsection{Active Power (P) Sensitivity}
-\begin{table}[H]
+\begin{table}[htbp]
 \centering
 \caption{System Response to $\pm 10\%$ Change in Active Power}
 \label{tab:sens_p}
+\resizebox{\textwidth}{!}{
 \begin{tabular}{c c c c c}
 \toprule
 \textbf{Load Bus} & \textbf{Avg $\sigma$ ($\times 10^{-4}$)} & \textbf{Avg $\sigma^2$ ($\times 10^{-8}$)} & \textbf{Max $\sigma$ ($\times 10^{-4}$)} & \textbf{Most Affected Bus} \\
@@ -674,13 +679,15 @@ Bus 6 & 1.3 & 1.69 & 2.8 & Bus 6 \\
 Bus 8 & 0.9 & 0.81 & 1.9 & Bus 8 \\
 \bottomrule
 \end{tabular}
+}
 \end{table}
 
 \subsubsection{Reactive Power (Q) Sensitivity}
-\begin{table}[H]
+\begin{table}[htbp]
 \centering
 \caption{System Response to $\pm 10\%$ Change in Reactive Power}
 \label{tab:sens_q}
+\resizebox{\textwidth}{!}{
 \begin{tabular}{c c c c c}
 \toprule
 \textbf{Load Bus} & \textbf{Avg $\sigma$ ($\times 10^{-4}$)} & \textbf{Avg $\sigma^2$ ($\times 10^{-8}$)} & \textbf{Max $\sigma$ ($\times 10^{-4}$)} & \textbf{Most Affected Bus} \\
@@ -690,6 +697,7 @@ Bus 6 & 8.5 & 72.3 & 16.2 & Bus 6 \\
 Bus 8 & 6.1 & 37.2 & 12.8 & Bus 8 \\
 \bottomrule
 \end{tabular}
+}
 \end{table}
 
 The most significant observation from Tables~\ref{tab:sens_p} and~\ref{tab:sens_q} is the disparity in magnitude: varying $Q$ by 10\% produces voltage deviations \textbf{6--7 times larger} than an equivalent $P$ variation. This is a direct consequence of the electromagnetic properties of transmission lines, as analysed in Section~5.4.1.
@@ -697,7 +705,7 @@ The most significant observation from Tables~\ref{tab:sens_p} and~\ref{tab:sens_
 \subsubsection{Sensitivity Ranking}
 Table~\ref{tab:sens_ranking} consolidates the results into a single ranking, ordered by overall voltage influence (combined $P$ and $Q$ sensitivity).
 
-\begin{table}[H]
+\begin{table}[htbp]
 \centering
 \caption{Voltage Sensitivity Ranking of Load Buses}
 \label{tab:sens_ranking}
@@ -715,7 +723,7 @@ Table~\ref{tab:sens_ranking} consolidates the results into a single ranking, ord
 Bus 5 is ranked first with the highest sensitivity under both $P$ and $Q$ variations, confirming it as the most vulnerable bus in the system. The ratio $\sigma_Q / \sigma_P \approx 6$--$7$ is consistent across all load buses, reflecting the uniform X/R ratio of the transmission network.
 
 \subsubsection{Raw Voltage Data}
-\begin{table}[H]
+\begin{table}[htbp]
 \centering
 \caption{Bus Voltage Magnitudes Under Load Variations}
 \label{tab:raw_sensitivity}
@@ -745,7 +753,7 @@ Several observations are drawn from Table~\ref{tab:raw_sensitivity}:
     \item Bus 6 demonstrates the second-largest sensitivity, consistent with its topological proximity to Bus 5 via a direct transmission path.
 \end{itemize}
 
-\begin{figure}[H]
+\begin{figure}[htbp]
     \centering
     \includegraphics[width=1.0\textwidth]{task3_sensitivity_profiles.png}
     \caption{Voltage profiles across buses for all five cases. The wide spread of the red curves (Q variation) compared to the tight green curves (P variation) visually confirms that reactive power is the dominant driver of voltage changes.}
@@ -785,7 +793,7 @@ Quantitatively, a 10\% increase in $Q$ at Bus 5 produced a voltage depression of
 \subsubsection{Voltage Sensitivity Coefficients}
 The diagonal elements of $J_4^{-1}$ at the converged solution provide the voltage sensitivity coefficients $\partial |V_i| / \partial Q_i$ (in pu/pu). These coefficients are computed as $-\text{diag}(J_4^{-1})$, where $J_4$ is evaluated at the converged operating point. Since $J_4$ represents $\partial Q / \partial |V|$, its inverse diagonal elements give $\partial |V| / \partial Q$. These are more physically intuitive than the standard-deviation-based metrics above, as they directly indicate how much the voltage at a bus will change per unit of reactive power injection. The values extracted from the final Jacobian are:
 
-\begin{table}[H]
+\begin{table}[htbp]
 \centering
 \caption{Voltage Sensitivity Coefficients from Final Jacobian}
 \label{tab:sens_coeff}
@@ -855,7 +863,7 @@ The sensitivity analysis identified Bus~5 as the weakest bus in the system, with
 
 \newpage
 \subsection*{A.3 Execution Log}
-\begin{figure}[H]
+\begin{figure}[htbp]
     \centering
     \includegraphics[width=1.0\textwidth]{execution_proof.png}
     \caption{program execution convergence in 4 iterations.}
