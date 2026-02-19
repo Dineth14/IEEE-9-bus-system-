@@ -1,0 +1,18 @@
+  ITER       DELTAP      BUS         DELTAQ      BUS        DELTA/V/      BUS       DELTAANG      BUS
+   0         1.6300(        2   )    0.8614(        4   )
+                                                             0.03908(        9   )   0.17522(        2   )
+   1         0.0986(        2   )    0.1761(        7   )
+                                                             0.01206(        5   )   0.01306(        2   )
+   2         0.0008(        8   )    0.0020(        7   )
+                                                             0.00016(        5   )   0.00019(        2   )
+   3         0.0000(        7   )    0.0000(        7   )
+
+
+ Reached tolerance in 3 iterations
+
+ Largest mismatch:      0.00 MW      0.00 Mvar      0.00 MVA at bus 7 [            230.00]
+ System total absolute mismatch:                    0.00 MVA
+
+ SWING BUS SUMMARY:
+   BUS# X-- NAME --X BASKV      PGEN     PMAX    PMIN      QGEN     QMAX    QMIN
+      1             16.500      71.6   9999.0 -9999.0      27.0   9999.0 -9999.0
